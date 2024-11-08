@@ -1,0 +1,51 @@
+.loginGlass {
+  background-color: rgba(217, 217, 217, 0.2);
+}
+
+@media (max-width: 1060px) {
+  .hide-on-small {
+    display: none;
+  }
+  .hide-on-mobile{
+    margin: 0;
+  }
+
+  .loginGlass{
+    justify-content: space-evenly;
+  }
+}
+
+@media (max-width: 750px) {
+  .hide-on-mobile {
+    display: none;
+  }
+  .loginGlass{
+    justify-content: center;
+  }
+}
+
+.otpArea input[type="text"]:first-child {
+  margin-left: 0;
+}
+
+.otpArea input[type="text"]:last-child {
+  margin-right: 0;
+}
+
+.otpArea input[type="text"] {
+  color: var(--text-color-light);
+  text-align: center !important;
+  padding: 0.5rem 0 !important;
+  width: 20% !important;
+  height: 3rem !important;
+  border-radius: 5px;
+  padding-top: 1rem;
+  margin: 0 3.3%; 
+  background-color: var(--color-1);
+  border: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.otpArea input[type="text"]:focus {
+  outline: 2px solid rgba(168, 168, 168, 0.489) !important;
+}
+

@@ -1,0 +1,388 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Georama:ital,wght@0,100..900;1,100..900&display=swap');
+
+/* Define the variable font */
+@font-face {
+  font-family: 'Georama';
+  src: url('../public/Fonts/Georama/Georama-VariableFont_wdth\,wght.ttf') format('truetype');
+  font-weight: 100 900; 
+  font-stretch: 50% 200%; 
+}
+
+/* Define a static font as fallback */
+@font-face {
+  font-family: 'Georama';
+  src: url('../public/Fonts/Georama/static/Georama-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+body {
+  font-family: 'Georama', sans-serif;
+  font-weight: 400;
+  font-stretch: 100%;
+}
+
+@layer base {
+  :root {
+    --primary-color: #7379FF;
+    --secondary-color: #242424;
+    --bg-color: #E9EBF6;
+    --text-color-light: #666666;
+    --text-color-dark: #242424;
+    --color-1: #FFFFFF;
+    --color-2: #E9EBF6;
+    --text-color-dark: #242424;
+    --lowContrastColor: #e7e7e7;
+
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --primary-color: #7379FF;
+    --secondary-color: #242424;
+    --bg-color: #0F0F0F;
+    --text-color-light: #707070;
+    --text-color-dark: #bbbbbb;
+    --color-1: #272727;
+    --color-2: #5255b6;
+    --lowContrastColor: #1b1b1b;
+
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+
+
+/* chat-interface  */
+
+/* components/ChatInterface.module.css */
+.sn-chat-container {
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.sn-chat-header {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  /* border-bottom: 1px solid #e6e6e6; */
+}
+
+.sn-doctor-profile {
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+}
+
+.sn-doctor-name {
+  font-weight: medium;
+  font-size: 16px;
+}
+
+.sn-send-button {
+  background-color: #7478ff;
+  color: #ffffff;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.sn-action-button {
+  background-color: #f1f1f1;
+  color: #7478ff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  margin-left: 10px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.sn-book-appointment {
+  background-color: #7478ff;
+  color: #ffffff;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+::-webkit-scrollbar-track {
+  display: none;
+}
+::-webkit-scrollbar-thumb {
+  display: none;
+}
+
+
+/* report  */
+
+.sn-add-report-container {
+  display: flex;
+  flex-direction: column;
+  max-width: 400px;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.sn-add-report-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.sn-add-report-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.sn-close-button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.sn-file-upload {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.sn-file-input {
+  display: none;
+}
+
+.sn-file-upload-label {
+  display: inline-block;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.sn-details-input p {
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.sn-input-field1 {
+  width: 30%;
+  padding: 10px;
+  margin: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f7f7f7;
+
+}
+
+.sn-input-field2 {
+  width: 64%;
+  padding: 10px;
+  margin: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f7f7f7;
+}
+
+.sn-add-report-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.sn-add-report-button {
+  padding: 10px 20px;
+  background-color: #5a67d8;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.sn-button{
+  background-color: #bec1fb;
+  color: black;
+  border-radius: 25%;
+  padding: 0.75rem;
+  margin: 0 0.25rem 0 0.5rem;
+  border: 1px solid #bec1fb;
+}
+
+.sn-patient-file-upload{
+  display: flex;
+  /* flex-direction: column; */
+  margin-bottom: 20px;
+}
+
+
+
+/* chat interface of the doc  */
+
+.sn-transcript-container {
+  display: flex;
+  background-color: #f8f8f8;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 800px;
+  margin: auto;
+}
+
+.sn-patient-contact {
+  margin-top: 15px;
+  font-size: 20px;
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+}
+
+.sn-transcript-content {
+  width: 70%;
+  padding-left: 20px;
+}
+
+.sn-transcript-header {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+.sn-transcript-date {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.sn-message {
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 15px;
+  width: fit-content;
+}
+
+.sn-message.sn-patient {
+  background-color: #e0f7e7;
+  align-self: flex-start;
+}
+
+.sn-message.sn-doctor {
+  background-color: #f0f0f0;
+  align-self: flex-end;
+}
+
+.sn-remove-patient-button {
+  background-color: #e2e8f0;
+  color: #4a5568;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+.sn-ChatInterfaceDoc-content{
+  box-shadow: 2px 7px 5px rgba(0, 0, 0, 0.2);
+}
+
+.sn-doc-chat-container{
+  /* background-color: var(--background); */
+  display: flex;
+  flex-direction: column;
+}
+
+
+
+/* scroll bar  */
+
+::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Background color of the track */
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888; /* Color of the scrollbar thumb */
+  border-radius: 6px; /* Rounded corners for the scrollbar thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Color when hovering over the scrollbar thumb */
+}
