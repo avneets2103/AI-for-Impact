@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useRef } from "react";
 import SectionDisplay from "../sectionDisplay/sectionDisplay";
+import Loader from "@/components/ui/Loader";
 import { Input } from "@nextui-org/input";
 import {
   Modal,
@@ -41,6 +42,7 @@ function ReportTop(props: Props) {
   const [addReport, setAddReport] = useState(false);
   const [queryResponseText, setQueryResponseText] = useState("");
   const [queryResponseShow, setQueryResponseShow] = useState(false);
+  const [LoadingText,setLoadingText]=useState(true);
 
   const copyToClipboard = async () => {
     try {
@@ -281,6 +283,8 @@ function ReportTop(props: Props) {
                             placeholders={placeholders}
                             onChange={(e)=>setPrompt(e.target.value)}
                             onSubmit={async ()=> {
+                              setQueryResponseShow(false);
+                              setLoadingText(false);
                               const response = await axios.post(`${BACKEND_URI}/patient/queryReports`, {
                                 "queryText": prompt
                               });
@@ -288,10 +292,16 @@ function ReportTop(props: Props) {
 
                             setQueryResponseText(response.data.data.response!==""?"Oops !!! Answer could not be found .":response.data.data.response);
 
-                              setQueryResponseShow(true)
+                              setQueryResponseShow(true);
+                              setLoadingText(true);
                             }} 
                           />
                         </div>
+                        {!queryResponseShow && !LoadingText && (
+  <div className="flex justify-center items-center h-full">
+    <Loader />
+  </div>
+)}
                         {
                           queryResponseShow ? 
                           <div className="flex gap-2 items-start max-h-[40vh] overflow-y-auto relative">

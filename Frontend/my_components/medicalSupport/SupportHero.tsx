@@ -77,7 +77,7 @@ function SupportHero() {
   }, [conversation]);
 
   return (
-    <div className="flex max-h-[80vh] flex-col bg-color1">
+    <div className="flex max-h-[80vh] flex-col bg-color1 rounded-xl">
       <p className="my-3 flex items-center justify-center font-medium gap-1">
         <img src="/icons/aiGenerated.png" alt="" className="w-[20px] h-[20px]" />
         AI Powered HealthChat

@@ -8,7 +8,7 @@ function SupportMain(props: Props) {
     const {} = props
 
     return (
-        <div className='flex-grow flex flex-col width-full h-full mr-6'>
+        <div className='flex-grow flex flex-col width-full h-full mr-6 rounded-md'>
             <SupportTop/>
             <SupportHero />
         </div>
