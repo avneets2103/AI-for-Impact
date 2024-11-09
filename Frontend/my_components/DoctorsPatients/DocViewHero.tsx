@@ -30,6 +30,7 @@ function DocViewHero({ data, searchPat, setPatList }: Props) {
           age,
           imageLink,
           bloodGroup,
+          absoluteSummary
         }) => (
           <DocViewLayoutItem
             key={id}
@@ -38,6 +39,7 @@ function DocViewHero({ data, searchPat, setPatList }: Props) {
             sex={sex}
             age={age}
             img={imageLink}
+            absoluteSummary = {absoluteSummary}
             bloodGroup={bloodGroup}
             setPatList={setPatList}
           />

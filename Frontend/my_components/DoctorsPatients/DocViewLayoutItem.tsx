@@ -22,7 +22,8 @@ const DocViewLayoutItem = ({
   age,
   img,
   bloodGroup,
-  setPatList
+  setPatList,
+  absoluteSummary
 }: {
   id: string;
   name: string;
@@ -30,7 +31,8 @@ const DocViewLayoutItem = ({
   age: string;
   img: string;
   bloodGroup: string;
-  setPatList: React.Dispatch<React.SetStateAction<Array<PatientSchema>>>
+  setPatList: React.Dispatch<React.SetStateAction<Array<PatientSchema>>>,
+  absoluteSummary: string
 }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   return (
@@ -67,7 +69,7 @@ const DocViewLayoutItem = ({
           {(onClose) => (
             <>
               <ModalBody className="">
-                <MedicalReport name={name} img={img} id={id} setPatList={setPatList} onClose={onClose}/>
+                <MedicalReport name={name} img={img} id={id} setPatList={setPatList} absoluteSummary={absoluteSummary} onClose={onClose}/>
               </ModalBody>
             </>
           )}

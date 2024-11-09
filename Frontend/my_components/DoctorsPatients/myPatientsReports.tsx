@@ -19,6 +19,7 @@ function MyPatientReportHero(props: Props) {
           location,
           reportPDFLink,
           reportSummary
+          reportSummary
         }) => (
           <ReportLayoutItem
             key={id}

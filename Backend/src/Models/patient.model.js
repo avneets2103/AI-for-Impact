@@ -117,7 +117,21 @@ const patientSchema = new mongoose.Schema({
                 type: String,
             }
         }
-    ]
+    ],
+    doctorsNotes: [
+        {
+            type: {
+                doctor: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'Doctor',
+                    required: true
+                },
+                note: {
+                    type: String
+                }
+            }
+        }
+    ],
 }, { timestamps: true });
 
 export const Patient = mongoose.models.Patient || mongoose.model('Patient', patientSchema);

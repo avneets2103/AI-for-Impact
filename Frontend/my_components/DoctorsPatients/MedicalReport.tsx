@@ -1,4 +1,4 @@
-import { Button, ButtonGroup } from "@nextui-org/react";
+import { Button, ButtonGroup, Input, Textarea } from "@nextui-org/react";
 import { icons } from "@tabler/icons-react";
 import { useTheme } from "next-themes";
 import React, { useEffect, useState } from "react";
@@ -27,25 +27,61 @@ import {
   
 } from "@nextui-org/react";
 import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input";
+
+
 interface Props {
   name: string;
   img: string | any;
   id: string;
   setPatList: React.Dispatch<React.SetStateAction<Array<PatientSchema>>>;
   onClose: Function;
+  absoluteSummary: string;
 }
 
-const MedicalReport = ({ name, img, id, setPatList, onClose }: Props) => {
-  
+const MedicalReport = ({ name, img, id, setPatList, onClose, absoluteSummary }: Props) => {
+  const [patientData, setPatientData] = useState<PatientDataSchema>({
+    sex: "",
+    age: "",
+    bloodGroup: "",
+    condition: "",
+    currentSymptoms: "",
+    medicalHistory: "",
+    reportsList: [],
+    absoluteSummary: "",
+    note: "",
+  });
+
+  useEffect(() => {
+    getPatientMedical(id, setPatientData, setDoctorNotes);
+  }, []);
+  const [prompt, setPrompt] = useState("");
   const { theme, setTheme } = useTheme();
 
   const [selectedTab, setSelectedTab] = useState("Summarization");
+  const [doctorNotes, setDoctorNotes] = useState(patientData.note);
+  const [doctorNotesEnabeled, setDoctorNotesEnabeled] = useState(false);
+  const [toggleLabel, setToggleLabel] = useState("Edit"); // New state for button label
   const placeholders = [
     "Prompt what you want to make?",
     "Patient's Insulin dosage since the past 5 years?",
     "Patient's protein levels in the past 3 months?",
     "Patient's Blood pressure in the past 10 reports?",
   ];
+
+  // Toggle button label and functionality
+  const handleToggle = async () => {
+    if (doctorNotesEnabeled) {
+      // save doctor Note to backedn
+      await axios.post(`${BACKEND_URI}/doctor/saveDoctorNote`, {
+        patientId: id,
+        note: doctorNotes,
+      });
+      ToastInfo("Doctor Note saved successfully");
+    }
+    setDoctorNotesEnabeled(!doctorNotesEnabeled); // Toggle the enabled state
+    setToggleLabel(doctorNotesEnabeled ? "Edit" : "Save"); // Update label
+  };
+
   const patientTabs = [
     {
       name: "Reports",
@@ -67,58 +103,51 @@ const MedicalReport = ({ name, img, id, setPatList, onClose }: Props) => {
       iconL: "/icons/diagnosisL.png",
       iconD: "/icons/diagnosisD.png",
     }
-  ]
-  const [patientData, setPatientData] = useState<PatientDataSchema>({
-    sex: "",
-    age: "",
-    bloodGroup: "",
-    condition: "",
-    currentSymptoms: "",
-    medicalHistory: "",
-    reportsList: [],
-  });
-  useEffect(() => {
-    getPatientMedical(id, setPatientData);
-  }, [])
+  ];
 
   const renderContent = () => {
     switch (selectedTab) {
       case "Reports":
-        return (
-          <MyPatientReportHero data={patientData.reportsList}/>
-        );
+        return <MyPatientReportHero data={patientData.reportsList}/>;
       case "Summarization":
         return (
           <div className="h-full w-full flex flex-col gap-4">
             <div>
-              <h2 className="text-[20px] font-bold text-textColorDark">Medical History</h2>
-              <p>
-                {patientData.medicalHistory}
-              </p>
+              <h2 className="text-[20px] font-bold text-textColorDark flex gap-2">
+                <img src="/icons/aiGenerated.png" alt="" className="w-[20px] h-[20px]"/>
+                Patient Overview
+              </h2>
+              <p>{patientData.absoluteSummary}</p>
             </div>
             <div>
-              <h2 className="text-[20px] font-bold text-textColorDark">Current Symptoms</h2>
-              <p>
-                {patientData.currentSymptoms}
-              </p>
+              <div className="flex justify-between items-center">
+                <h2 className="text-[20px] font-bold text-textColorDark">Doctor's Notes</h2>
+                <Button color={doctorNotesEnabeled?"primary":"secondary"} onClick={handleToggle}>{toggleLabel}</Button>
+              </div>
+              <Textarea
+                disabled={!doctorNotesEnabeled}
+                variant="underlined"
+                color="primary"
+                placeholder="Type your notes here..."
+                value={doctorNotes}
+                onChange={(e) => setDoctorNotes(e.target.value)}
+                minRows={6} // Set minimum rows for height
+                maxRows={10} // Limit max rows for more controlled scrolling
+                className="w-full" // Full width for better UI
+              />
             </div>
           </div>
-        )
+        );
       case "Graphical Reports":
         return (
           <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-5">
             <PlaceholdersAndVanishInput
               placeholders={placeholders}
-              onChange={(e)=>setPrompt(e.target.value)}
-              onSubmit={()=> console.log(prompt)}
+              onChange={(e) => setPrompt(e.target.value)}
+              onSubmit={() => console.log(prompt)}
             />
-          </div>
-          <DoctorVitalsLayout className="w-full max-h-[65vh] overflow-y-scroll">
-            {HealthGraphs.map(
-              ({
-                id, name, data, description,
-              }) => (
+            <DoctorVitalsLayout className="w-full max-h-[65vh] overflow-y-scroll">
+              {HealthGraphs.map(({ id, name, data, description }) => (
                 <DoctorVitalsLayoutItem
                   key={id}
                   id={id}
@@ -126,15 +155,12 @@ const MedicalReport = ({ name, img, id, setPatList, onClose }: Props) => {
                   data={data}
                   description={description}
                 />
-              ),
-            )}
-          </DoctorVitalsLayout>
+              ))}
+            </DoctorVitalsLayout>
           </div>
         );
       case "Diagnosis":
-        return (
-          <DiagnosisAI/>
-        )
+        return <DiagnosisAI/>;
       default:
         return null;
     }
@@ -143,7 +169,7 @@ const MedicalReport = ({ name, img, id, setPatList, onClose }: Props) => {
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
   const [queryResponseText, setQueryResponseText] = useState("");
   const [queryResponseShow, setQueryResponseShow] = useState(false);
-  const [prompt, setPrompt] = useState("");
+  // const [prompt, setPrompt] = useState("");
   const [oldPrompt, setOldPrompt] = useState(""); // Loader state
   const [context, setContext] = useState("");
   
@@ -184,30 +210,17 @@ const MedicalReport = ({ name, img, id, setPatList, onClose }: Props) => {
             />
           </div>
           <div className="mt-[10px] items-start text-[14px] flex w-[90%] flex-col pl-2">
-            <p className="font-semibold text-large">
-              {name}
-            </p>
-            <p>
-              <span className="font-medium">Sex</span>: {patientData.sex}
-            </p>
-            <p>
-              <span className="font-medium">Age</span>: {patientData.age}
-            </p>
-            <p>
-              <span className="font-medium">Condition</span>: {patientData.condition}
-            </p>
-            <p>
-              <span className="font-medium">Blood Group</span>: {patientData.bloodGroup}
-            </p>
+            <p className="font-semibold text-large">{name}</p>
+            <p><span className="font-medium">Sex</span>: {patientData.sex}</p>
+            <p><span className="font-medium">Age</span>: {patientData.age}</p>
+            <p><span className="font-medium">Condition</span>: {patientData.condition}</p>
+            <p><span className="font-medium">Blood Group</span>: {patientData.bloodGroup}</p>
           </div>
         </div>
         <div className="w-full flex justify-start">
-          <Button className="w-full" onPress={
-            ()=>{
-              removePatient(id, setPatList);
-              onClose();
-            }
-          }>Remove Patient</Button>
+          <Button className="w-full" onPress={() => { removePatient(id, setPatList); onClose(); }}>
+            Remove Patient
+          </Button>
         </div>
       </div>
       <div className="w-[85%] flex flex-col">
@@ -216,13 +229,15 @@ const MedicalReport = ({ name, img, id, setPatList, onClose }: Props) => {
           <div className="flex gap-2 bg-bgColor w-[200px] justify-center p-2 rounded-[20px]">
             {patientTabs.map((tab) => (
               <Button
+                key={tab.name}
                 isIconOnly
                 className={`${selectedTab === tab.name ? "bg-primaryColor" : ""}`}
                 onClick={() => setSelectedTab(tab.name)}
               >
                 {theme === "dark" ? 
-                <Image width={100} height={100} src={tab.iconD} alt="icon" className="w-[20px]" />:
-                <Image width={100} height={100} src={tab.iconL} alt="icon" className="w-[20px]" />}
+                  <Image width={100} height={100} src={tab.iconD} alt="icon" className="w-[20px]" /> :
+                  <Image width={100} height={100} src={tab.iconL} alt="icon" className="w-[20px]" />
+                }
               </Button>
             ))}
             
