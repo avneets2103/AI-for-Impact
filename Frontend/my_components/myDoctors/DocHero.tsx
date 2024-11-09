@@ -9,6 +9,7 @@ interface Props {
 }
 
 function DocHero({data, searchDoc, setDocList}: Props) {
+  
     const filteredData = data.filter((doc: DocSchema) => {
       const lowerCaseSearchDoc = searchDoc.toLowerCase();
       return (

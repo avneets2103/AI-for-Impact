@@ -9,7 +9,6 @@ import { logout } from '@/Helpers/logout';
 import { PatientSchema } from '@/Interfaces';
 import { getPatList } from '@/Helpers/apiCalls';
 
-
 function DoctorsPatient() {
     const Router = useRouter();
     const [searchPat, setSearchPat] = React.useState<string>("");
@@ -20,7 +19,7 @@ function DoctorsPatient() {
               const accessTokenResponse = await axios.post(
                 `${BACKEND_URI}/auth/verifyAccessToken`,
               );
-              if (accessTokenResponse.status !== 200) {
+              if (accessTokenResponse.status !== 200) { 
                 Router.push("/login");
                 logout();
                 return;
@@ -37,7 +36,7 @@ function DoctorsPatient() {
         checkTokens();
         getPatList(setPatList);
     }, [Router])
-
+            
     return (
         <div className='flex-grow flex flex-col width-full h-full mr-6'>
             <DocViewTop searchPat = {searchPat} setSearchPat = {setSearchPat}/>

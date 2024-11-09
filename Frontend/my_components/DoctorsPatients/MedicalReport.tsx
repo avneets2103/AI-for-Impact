@@ -11,6 +11,21 @@ import Image from "next/image";
 import { VitalsLayout, VitalsLayoutItem } from "../healthVitals/VitalsLayout";
 import { HealthGraphs } from "@/Data/HealthGraphs";
 import { DoctorVitalsLayout, DoctorVitalsLayoutItem } from "./DoctorVitalsLayout";
+import { ToastErrors, ToastInfo } from "@/Helpers/toastError";
+import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+import axios from "@/utils/axios";
+
+import { BACKEND_URI } from "@/CONSTANTS";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+ 
+  
+} from "@nextui-org/react";
 import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input";
 interface Props {
   name: string;
@@ -21,8 +36,9 @@ interface Props {
 }
 
 const MedicalReport = ({ name, img, id, setPatList, onClose }: Props) => {
-  const [prompt, setPrompt] = useState("");
+  
   const { theme, setTheme } = useTheme();
+
   const [selectedTab, setSelectedTab] = useState("Summarization");
   const placeholders = [
     "Prompt what you want to make?",
@@ -123,6 +139,33 @@ const MedicalReport = ({ name, img, id, setPatList, onClose }: Props) => {
         return null;
     }
   };
+  
+  const {isOpen, onOpen, onOpenChange} = useDisclosure();
+  const [queryResponseText, setQueryResponseText] = useState("");
+  const [queryResponseShow, setQueryResponseShow] = useState(false);
+  const [prompt, setPrompt] = useState("");
+  const [oldPrompt, setOldPrompt] = useState(""); // Loader state
+  const [context, setContext] = useState("");
+  
+
+  const cleanTextForDisplay = (text: string): string => {
+    return text
+      .replace(/\*\*(.*?)\*\*/g, '$1')  // Remove **bold** markers
+      .replace(/[^\w\s\d\.\,\!\?\-]/g, '') // Remove special characters (excluding common punctuation)
+      .replace(/\n+/g, ' ')             // Replace multiple newlines with a single space
+      .replace(/(\d+\.\s)/g, '\n$1')    // Insert newline before numbered points
+      .trim();                          // Trim any excess whitespace at the start/end
+  };
+
+  const copyToClipboard = async () => {
+    try {
+      await navigator.clipboard.writeText(queryResponseText);
+      ToastInfo("Report Link Copied");
+    } catch (err) {
+      console.error("Failed to copy the text to clipboard", err);
+    }
+  };
+  
 
   return (
     <div className="rounded-[20px] bg-backgroundColor flex text-textColorDark w-full h-full">
@@ -169,7 +212,8 @@ const MedicalReport = ({ name, img, id, setPatList, onClose }: Props) => {
       </div>
       <div className="w-[85%] flex flex-col">
         <div className="w-full flex flex-col items-center">
-          <div className="flex gap-2 bg-bgColor w-[200px] flex justify-center p-2 rounded-[20px]">
+          <div className="flex">
+          <div className="flex gap-2 bg-bgColor w-[200px] justify-center p-2 rounded-[20px]">
             {patientTabs.map((tab) => (
               <Button
                 isIconOnly
@@ -181,7 +225,94 @@ const MedicalReport = ({ name, img, id, setPatList, onClose }: Props) => {
                 <Image width={100} height={100} src={tab.iconL} alt="icon" className="w-[20px]" />}
               </Button>
             ))}
+            
+           
           </div>
+          <div>
+          <Button onPress={onOpen} className="my-2 mx-2">
+        
+        <Image
+          width={100}
+          height={100}
+          src="/icons/aiGenerated.png"
+          className="w-[20px]"
+          alt="logo"
+        />
+    
+          </Button>
+         
+        
+      <Modal
+  isOpen={isOpen}
+  onOpenChange={onOpenChange}
+ 
+  placement="top-center"
+  size="xl"
+  className="p-4"
+>
+  <ModalContent>
+    {(onClose)=>
+      <>
+    <ModalHeader>
+      <p className="text-lg font-semibold flex gap-1 items-center">
+        <img src="/icons/aiGenerated.png" alt="" className="w-[20px] h-[20px]" />
+        Ask your Reports
+      </p>
+    </ModalHeader>
+    <ModalBody className="max-h-[60vh] overflow-y-scroll">
+      <div className="flex flex-col">
+        <div className="pb-4">
+          <PlaceholdersAndVanishInput
+            placeholders={placeholders}
+            onChange={(e) => setPrompt(e.target.value)}
+            onSubmit={async () => {
+              const response = await axios.post(`${BACKEND_URI}/patient/queryReports`, {
+                queryText: prompt,
+                patientId: id,
+              });
+              
+              setOldPrompt(prompt);
+              setQueryResponseText(response.data.data.response !== "" ? response.data.data.response : "Oops !!! Answer could not be found.");
+              setQueryResponseShow(true);
+            }}
+          />
+        </div>
+        {queryResponseShow && (
+          <div className="flex gap-2 items-start max-h-[40vh] overflow-y-auto relative">
+            <div className="flex flex-col gap-1 items-start">
+              <Button color="primary" isIconOnly className="top-0 left-0">
+                <img src="/icons/aiGenerated.png" alt="" className="w-[20px] h-[20px]" />
+              </Button>
+              <Button
+                isIconOnly
+                className="top-0 left-0"
+                onClick={copyToClipboard}
+              >
+                <img src="/icons/copy.png" alt="" className="w-[15px] h-[15px]" />
+              </Button>
+            </div>
+            <div>
+              <p className="text-md font-medium">{oldPrompt}</p>
+              <TextGenerateEffect words={cleanTextForDisplay(queryResponseText)} />
+            </div>
+           
+          </div>
+        )}
+      </div>
+    </ModalBody>
+   
+    </>
+}
+   
+  </ModalContent>
+</Modal>
+
+     
+      </div>
+
+          </div>
+          
+
         </div>
         <div className="w-full p-4 h-full max-h-[80vh] overflow-y-scroll">
           {renderContent()}

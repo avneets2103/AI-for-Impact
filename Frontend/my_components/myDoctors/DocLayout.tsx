@@ -1,3 +1,5 @@
+"use Client"
+import React from "react";
 import { getDocList, removeDoctor } from "@/Helpers/apiCalls";
 import { ToastInfo } from "@/Helpers/toastError";
 import { DocSchema } from "@/Interfaces";
@@ -11,6 +13,7 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import Image from "next/image";
+import ShimmerDoctor from "./ShimmerDoctor";
 
 export const DocLayout = ({
   className,
@@ -59,6 +62,11 @@ export const DocLayoutItem = ({
       console.error("Failed to copy the text to clipboard", err);
     }
   };
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  const handleImageLoad = () => {
+    setIsLoading(false);
+  };
   return (
     <div
       className={cn(
@@ -71,7 +79,23 @@ export const DocLayoutItem = ({
       }
     >
       <div className="w-full h-full relative">
-        <Image width={100} height={100} src={img} alt="doctor" className="h-full w-full -z-5 absolute"/>
+    
+      {isLoading && (
+        <div className="h-full w-full bg-gray-300 animate-pulse absolute top-0 left-0 rounded-md"></div>
+      )}
+      {/* Image */}
+      <img
+        width={100}
+        height={100}
+        src={img}
+        alt="doctor"
+        onLoad={handleImageLoad}
+        className={`h-full w-full absolute top-0 left-0 transition-opacity duration-500 ${
+          isLoading ? 'opacity-0' : 'opacity-100'
+        }`}
+      />
+
+
         <div className="h-full w-full bg-black opacity-30 -z-5 absolute flex"></div>
         <div className="h-full w-full z-0 absolute flex justify-between flex-col p-3 text-[whitesmoke]">
           <p>{name.slice(0, Math.min(name.length, 25))}</p>
