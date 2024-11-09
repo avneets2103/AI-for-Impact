@@ -77,20 +77,32 @@ const generatePatientCode = asyncHandler(async (req, res) => {
 
 const getPatientMedical = asyncHandler(async (req, res) => {
     try {
-        const {patientId} = req.body;
-        const patient = await Patient.findById(patientId);
+        const { patientId } = req.body;
+        const patient = await Patient.findById(patientId).populate('doctorsNotes.doctor'); // Populate doctor data
         if (!patient) {
             throw new ApiError(404, 'Patient not found');
         }
+        // Check if the doctor has authorization
         if (!patient.doctorsList.includes(req.user.doctorDetails._id)) {
             throw new ApiError(401, 'Unauthorized access');
         }
-        const reportList = [];
-        for (const report of patient.reportsList) {
-        report.reportPDFLink = await getObjectURL(report.reportPDFLink);
-        reportList.push(report);
-        }
-        reportList.reverse();
+
+        // Generate report list with S3 URLs
+        const reportList = await Promise.all(
+            patient.reportsList.map(async (report) => {
+                report.reportPDFLink = await getObjectURL(report.reportPDFLink);
+                return report;
+            })
+        );
+
+        // Retrieve the specific doctor's note if it exists
+        const doctorNoteEntry = patient.doctorsNotes.find(
+            (note) => note.doctor._id.toString() === req.user.doctorDetails._id.toString()
+        );
+        const docNote = doctorNoteEntry ? doctorNoteEntry.note : "";
+
+        reportList.reverse(); // Optional sorting for reports
+
         const response = {
             sex: patient.sex,
             age: patient.age,
@@ -99,15 +111,57 @@ const getPatientMedical = asyncHandler(async (req, res) => {
             medicalHistory: patient.medicalHistorySummary || "",
             currentSymptoms: patient.currentSymptomsSummary || "",
             reportsList: reportList,
-        }
+            absoluteSummary: patient.absoluteSummary || "",
+            note: docNote
+        };
+
         return res.status(200).json(
             new ApiResponse(200, response, 'Patient medical history retrieved successfully')
         );
-
-    }catch (error) {
+    } catch (error) {
         throw new ApiError(500, 'Something went wrong in getPatientMedical');
     }
-})
+});
+
+const saveDoctorNote = asyncHandler(async (req, res) => {
+    try {
+        const { note, patientId } = req.body;
+        const user = await User.findById(req.user._id).populate('doctorDetails');
+        if (!user || !user.doctorDetails) {
+            throw new ApiError(404, 'Doctor not found');
+        }
+        
+        const doctorId = user.doctorDetails._id;
+        const patient = await Patient.findById(patientId);
+        if (!patient) {
+            throw new ApiError(404, 'Patient not found');
+        }
+
+        // Check if this doctor has already left a note
+        const existingNote = patient.doctorsNotes.find(
+            (docNote) => docNote.doctor.toString() === doctorId.toString()
+        );
+
+        if (existingNote) {
+            // Update existing note
+            existingNote.note = note;
+        } else {
+            // Add new note entry
+            patient.doctorsNotes.push({ doctor: doctorId, note });
+        }
+
+        await patient.save();
+
+        return res.status(200).json(
+            new ApiResponse(200, {
+                patientsList: user.doctorDetails.patientsList, // Return doctor’s patient list
+                doctorsList: patient.doctorsList
+            }, 'Doctor note saved successfully')
+        );
+    } catch (error) {
+        throw new ApiError(500, 'Something went wrong in saveDoctorNote');
+    }
+});
 
 const removePatient = asyncHandler(async (req, res) => {
     try {
@@ -143,5 +197,6 @@ export {
     getPatientList,
     generatePatientCode,
     getPatientMedical,
-    removePatient
+    removePatient,
+    saveDoctorNote
 };

@@ -34,6 +34,7 @@ interface PatientSchema{
     currentSymptomsSummary?: string;
     assistiveDiagnosis?: string;
     reportsList?: any;
+    absoluteSummary: string;
 }
 
 interface ReportsSchema {
@@ -69,6 +70,8 @@ interface PatientDataSchema {
     medicalHistory: string,
     currentSymptoms: string,
     reportsList: ReportsSchema[],
+    absoluteSummary: string,
+    note: string
 }
 
 export type {

@@ -37,6 +37,7 @@ const getPatList = async (setPatList: React.Dispatch<React.SetStateAction<Array<
       sex: pat.sex,
       age: pat.age,
       bloodGroup: pat.bloodGroup, 
+      absoluteSummary: pat.absoluteSummary,
     }
     tempPatList.push(tempPat);
   }
@@ -93,11 +94,12 @@ const getReportsList = async (setReportsList: React.Dispatch<React.SetStateActio
   setReportsList(response.data.data);
 }
 
-const getPatientMedical = async (patientId: string, setPatientData: React.Dispatch<React.SetStateAction<PatientDataSchema>>) => {
+const getPatientMedical = async (patientId: string, setPatientData: React.Dispatch<React.SetStateAction<PatientDataSchema>>, setDoctorNotes: React.Dispatch<React.SetStateAction<string>>) => {
   const response = await axios.post(`${BACKEND_URI}/doctor/getPatientMedical`, {
     patientId
   })
   setPatientData(response.data.data);
+  setDoctorNotes(response.data.data.note);
 }
 
 export { getDocList, getPatList, removeDoctor, removePatient, getUserDetails, updatePassword, getReportsList, getPatientMedical };
