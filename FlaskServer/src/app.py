@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from routes.report_route import report_bp
 from routes.patientChat import patient_chat_bp
+from routes.doctorChat import doctor_chat_bp
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 # Initialize Flask app
@@ -19,3 +20,6 @@ app.register_blueprint(report_bp, url_prefix="/api/v1/reports")
 
 # Patient chat routes
 app.register_blueprint(patient_chat_bp, url_prefix="/api/v1/patientChat")
+
+# Doctor chat routes
+app.register_blueprint(doctor_chat_bp, url_prefix="/api/v1/doctorChat")
