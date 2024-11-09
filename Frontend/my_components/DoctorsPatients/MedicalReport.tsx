@@ -161,7 +161,7 @@ const MedicalReport = ({ name, img, id, setPatList, onClose, absoluteSummary }: 
           </div>
         );
       case "Diagnosis":
-        return <DiagnosisAI/>;
+        return <DiagnosisAI id={id}/>;
       default:
         return null;
     }
@@ -200,7 +200,7 @@ const MedicalReport = ({ name, img, id, setPatList, onClose, absoluteSummary }: 
     <div className="rounded-[20px] bg-backgroundColor flex text-textColorDark w-full h-full">
       <div className="w-[15%] items-center flex flex-col p-2 border-r-2 border-bgColor justify-between">
         <div>
-          <div className="pl-2 font-medium text-medium border-2 border-bgColor flex items-center justify-center rounded-lg h-10">
+          <div className="pl-2 font-medium text-medium border-2 border-bgColor flex items-center justify-center rounded-lg h-12 w-40">
             {selectedTab}
           </div>
           <div className="flex justify-center">
@@ -220,7 +220,7 @@ const MedicalReport = ({ name, img, id, setPatList, onClose, absoluteSummary }: 
             <p><span className="font-medium">Blood Group</span>: {patientData.bloodGroup}</p>
           </div>
         </div>
-        <div className="w-full flex justify-start">
+        <div className="w-full flex justify-start mb-8">
           <Button className="w-full" onPress={() => { removePatient(id, setPatList); onClose(); }}>
             Remove Patient
           </Button>
@@ -343,7 +343,7 @@ const MedicalReport = ({ name, img, id, setPatList, onClose, absoluteSummary }: 
           
 
         </div>
-        <div className="w-full p-4 h-full max-h-[80vh] overflow-y-scroll">
+        <div className="w-full p-4 h-[full] overflow-y-scroll">
           {renderContent()}
         </div>
       </div>
