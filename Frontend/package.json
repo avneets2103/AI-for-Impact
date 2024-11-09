@@ -33,6 +33,7 @@
     "emoji-picker-react": "^4.10.0",
     "express-session": "^1.18.0",
     "framer-motion": "^11.2.13",
+    "HackSmiths": "file:",
     "input-otp": "^1.2.4",
     "js-cookie": "^3.0.5",
     "next": "14.2.3",

@@ -124,8 +124,9 @@ function LoginCard({setNewPatientSignup}:Props) {
             <div className='
             min-w-60
             bg-bgColor 
-            w-[30%] 
-            h-2/3 
+            md:w-[30%] 
+            h-[80%] 
+            w-full
             rounded-[20px]
             flex
             flex-col
@@ -133,16 +134,17 @@ function LoginCard({setNewPatientSignup}:Props) {
             justify-evenly
             p-[0.75rem]
             georama-r
+            px-4
             shadow-ourBoxShadow
             '>
                 <Image width={100} height={100} src="/icons/logo.png" alt="logo"
                 className='w-[50px]' 
                 />
                 <div className='flex flex-col items-center justify-center'>
-                    <p className='georama-b text-xl'>Hey</p>
-                    <p className='georama-l text-xs'>Pls Sign Up or Login</p>
+                    <p className='georama-b text-2xl'>Hey</p>
+                    <p className='georama-l text-xl'>Pls Sign Up or Login</p>
                 </div>
-                <div className='w-full flex flex-col gap-[5px]'>
+                <div className='w-full flex flex-col gap-[8px]'>
                     <div className='w-full'>
                         <Input 
                         className='w-full'
@@ -182,7 +184,7 @@ function LoginCard({setNewPatientSignup}:Props) {
                         <Link
                         href="/login"
                         onClick={()=>{handleForgotPass(setForgotPass, setOtpPage, setPassword)}}
-                        className={"text-[13px] text-slate-600 decoration-solid "}
+                        className={"text-[13px] text-slate-600 decoration-solid  hover:text-[#885bff]"}
                         >
                             Forgot Password?
                         </Link>
@@ -254,7 +256,7 @@ function LoginCard({setNewPatientSignup}:Props) {
                     <Link
                     href="/login"
                     onClick={()=>{handleGenerateNewPassword(email, setForgotPass, setOtpPage)}} 
-                    className={"text-[13px] text-textColorLight decoration-solid "}
+                    className={"text-[13px] text-textColorLight decoration-solid  hover:text-[#885bff]"}
                     >
                     Change password
                     </Link>
