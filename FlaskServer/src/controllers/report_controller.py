@@ -35,12 +35,10 @@ def update_kb():
 
     # Summarize individual report
     ind_report_summary = chat_session.send_message("Summarize this report for a doctor keeping only the medically relevant parts. Make it super crisp and only the parts doctor needs to worry about. "+report_text)
-    print(ind_report_summary.text)
 
     # Summarize combined report and absolute text
     new_absolute_raw_text = f"{report_text} {absolute_text}"
     new_absolute_text = chat_session.send_message("Summarize this report for a doctor keeping only the medically relevant parts. Make it super crisp and only the parts doctor needs to worry about. "+new_absolute_raw_text)
-    print(new_absolute_text.text)
 
     response_data = {
         "message": "Report updated successfully",
@@ -79,12 +77,10 @@ def sentence_based_chunking(text, max_tokens=20, delimiter="[.!?]", chunk_overla
     return chunks
 
 def get_embeddings(text, tokenizer, model):
-    # print(text)
     # Tokenize the text
     inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
     with torch.no_grad():
         outputs = model(**inputs)
-    # print(outputs)
     return outputs.last_hidden_state.mean(dim=1)
 
 def get_full_report_embedding(report_text, tokenizer, model, max_tokens=20, date=""):
@@ -163,10 +159,8 @@ def generalReportQuery(request):
     for result in results.matches:
         searchText += result.metadata['reportText']
         sourcesList.append(result.metadata['reportLink'])
-        print(result)
 
     response = chat_session.send_message(queryText + " .Anwer this question above, based upon the information mentioned below. "+searchText)
-    print(response.text)
     
     return {
         "message": "Query executed successfully",

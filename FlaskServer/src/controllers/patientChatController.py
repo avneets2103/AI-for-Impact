@@ -35,10 +35,8 @@ def chatController():
 
     # Send the prompt to the chat session
     response = chat_session.send_message(context + " " +prompt)
-    print(response.text)
 
     newContext = chat_session.send_message("Make a new context from the sum of new response: "+response.text+" and the current context: "+context+" . Only reply with plain text only. No bold, no /n etc.")
-    print(newContext.text)
     
     return {
         "message": "Chat executed successfully",
