@@ -124,6 +124,14 @@ function ReportTop(props: Props) {
       throw error;
     }
   };
+  const cleanTextForDisplay = (text: string): string => {
+    return text
+      .replace(/\*\*(.*?)\*\*/g, '$1')  // Remove **bold** markers
+      .replace(/[^\w\s\d\.\,\!\?\-]/g, '') // Remove special characters (excluding common punctuation)
+      .replace(/\n+/g, ' ')             // Replace multiple newlines with a single space
+      .replace(/(\d+\.\s)/g, '\n$1')    // Insert newline before numbered points
+      .trim();                          // Trim any excess whitespace at the start/end
+  };
 
   return (
     <div className="width-[100%] my-4 flex h-[7%] cursor-pointer items-center justify-between font-medium">
@@ -277,7 +285,9 @@ function ReportTop(props: Props) {
                                 "queryText": prompt
                               });
                               setOldPrompt(prompt);
-                              setQueryResponseText(response.data.data.response);
+
+                            setQueryResponseText(response.data.data.response!==""?"Oops !!! Answer could not be found .":response.data.data.response);
+
                               setQueryResponseShow(true)
                             }} 
                           />
@@ -293,7 +303,7 @@ function ReportTop(props: Props) {
                             </div>
                             <div>
                               <p className="text-md font-medium">{oldPrompt}</p>
-                              <TextGenerateEffect words={queryResponseText}/>
+                              <TextGenerateEffect words={cleanTextForDisplay(queryResponseText)}/>
                             </div>
                           </div>
                           :

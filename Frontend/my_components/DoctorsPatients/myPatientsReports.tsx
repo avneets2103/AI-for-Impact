@@ -21,13 +21,13 @@ function MyPatientReportHero(props: Props) {
           reportSummary
         }) => (
           <ReportLayoutItem
-          key={id}
-          id={id}
-          reportName={reportName}
-          reportDate={reportDate}
-          location={location}
-          reportPDFLink={reportPDFLink}
-          reportSummary={reportSummary}
+            key={id}
+            id={id}
+            reportName={reportName}
+            reportDate={reportDate}
+            location={location}
+            reportPDFLink={reportPDFLink}
+            reportSummary={reportSummary}
           />
         ),
       )}

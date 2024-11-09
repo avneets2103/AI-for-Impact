@@ -7,11 +7,13 @@ import { useRouter } from "next/navigation";
 import { logout } from "@/Helpers/logout";
 import { DocSchema } from "@/Interfaces";
 import { getDocList } from "@/Helpers/apiCalls";
+import ShimmerDoctor from "./ShimmerDoctor";
 
 function MyDoctors() {
   const Router = useRouter();
   const [searchDoc, setSearchDoc] = React.useState<string>("");
   const [docList, setDocList] = React.useState<Array<DocSchema>>([]);
+  const [doctorFound,setDoctorFound]=React.useState("false");
   useEffect(() => {
     const checkTokens = async () => {
       try {
@@ -34,13 +36,18 @@ function MyDoctors() {
     };
 
     checkTokens();
-    getDocList(setDocList);
+     setTimeout(async ()=>{
+      const doc=await  getDocList(setDocList);
+      setDoctorFound("true");
+     },500)
+    
   }, [Router]);
 
   return (
     <div className="width-full mr-6 flex h-full flex-grow flex-col">
       <MyDocTop searchDoc={searchDoc} setSearchDoc={setSearchDoc} setDocList = {setDocList}/>
-      <DocHero data={docList} searchDoc={searchDoc} setDocList={setDocList}/>
+      {doctorFound==="true"?<DocHero data={docList} searchDoc={searchDoc} setDocList={setDocList}/>:<ShimmerDoctor/>}
+  
     </div>
   );
 }
