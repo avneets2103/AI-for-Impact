@@ -439,6 +439,31 @@ const acceptChart = asyncHandler(async (req, res) => {
   }
 });
 
+const patientChat = asyncHandler(async (req, res) => {
+  try {
+    const {prompt, context} = req.body;
+    if(req.user.isDoctor){
+      throw new ApiError(401, "Unauthorized access");
+    }
+
+    const resp =  await axios.post(`${process.env.FLASK_SERVER}/patientChat/chat`, {
+      prompt,
+      context,
+      patientId: req.user.patientDetails._id
+    })
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        resp.data,
+        "Chat response added successfully"
+      )
+    );
+  } catch (error) {
+    throw new ApiError(500, "Something went wrong in Accept Chart");
+  }
+});
+
 export {
   getDoctorList,
   addDoctor,
@@ -450,5 +475,6 @@ export {
   queryReports,
   queryDateVal, 
   acceptChart,
-  addChatReport
+  addChatReport,
+  patientChat
 };

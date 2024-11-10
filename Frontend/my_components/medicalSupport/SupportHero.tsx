@@ -18,11 +18,8 @@ function SupportHero() {
   };
   const formatTextAsHTML = (text: string): string => {
     return text
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // Convert **text** to <strong>text</strong>
-      .replace(/\n/g, '<br>')                            // Convert newlines to <br> tags
-      .replace(/(\d+)\.\s/g, '<br>$1. ')                 // Add line breaks for numbered lists
-      .replace(/\n\s*[-*]\s*/g, '<br>• ')                // Add line breaks and bullets for lists
-      .replace(/\n{2,}/g, '<br><br>');                   
+      .replace(/\*\*(.*?)\*\*/g, '$1')  // Remove **bold** markers
+      .replace(/\n+/g, ' ');  // Replace newlines with a single space                
   };
 
   const [conversation, setConversation] = useState<Message[]>([
@@ -31,7 +28,7 @@ function SupportHero() {
   const chatBodyRef = useRef<HTMLDivElement>(null);
   const [inputText, setInputText] = useState<string>("");
   const [waitForRes, setWaitForRes] = useState(false); // Loader state
-  const [context, setContext] = useState("");
+  const [context, setContext] = useState(".");
 
   const handleSendMessage = async () => {
     if (inputText.trim() === "") return;
@@ -42,23 +39,26 @@ function SupportHero() {
     setConversation((prev) => [...prev, newMessage]);
     setWaitForRes(true);  // Show loader
     setInputText("");
-
+    
     try {
-      const res = await axios.post(`${FLASK_SERVER}/patientChat/chat`, {
+      const res = await axios.post(`${BACKEND_URI}/patient/chat`, {
         prompt: inputText,
         context: context,
       });
-
+      console.log("Data success!");
+      
+      // console.log("Response from server: ", res.data);
+      
       // Update context with the new context from response
       setContext(res.data.newContext);
 
       // Create the new message object for the bot response
-      const newMessage2: Message = { text: formatTextAsHTML(res.data.response), sender: "not_user" };
+      const newMessage2: Message = { text: formatTextAsHTML(res.data.data.response), sender: "not_user" };
 
       // Add bot response to the conversation without overwriting
       setConversation((prev) => [...prev, newMessage2]);
     } catch (error) {
-      console.error("Error sending message:", error);
+      console.error("Error sending messages:", error);
     } finally {
       setWaitForRes(false);  // Hide loader when done
     }
@@ -77,12 +77,12 @@ function SupportHero() {
   }, [conversation]);
 
   return (
-    <div className="flex max-h-[80vh] flex-col bg-color1">
+    <div className="flex h-[80vh] flex-col bg-color1 rounded-xl">
       <p className="my-3 flex items-center justify-center font-medium gap-1">
         <img src="/icons/aiGenerated.png" alt="" className="w-[20px] h-[20px]" />
         AI Powered HealthChat
       </p>
-      <div ref={chatBodyRef} className="flex max-h-[60vh] flex-col overflow-y-scroll p-[15px] text-textColorDark">
+      <div ref={chatBodyRef} className="flex h-[60vh] flex-col overflow-y-scroll p-[15px] text-textColorDark">
         {conversation.map((message, index) => (
           <div
           key={index}
@@ -107,7 +107,7 @@ function SupportHero() {
           </div>
         )}
       </div>
-      <div className="flex flex-col items-center p-[10px] pr-0">
+      <div className="flex flex-col sticky bottom-0 items-center p-[10px] pr-0 ">
         <div className="w-[100%] p-1 flex gap-1">
           <Input
             variant="underlined"

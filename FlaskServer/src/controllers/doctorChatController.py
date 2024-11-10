@@ -1,8 +1,8 @@
 import google.generativeai as genai
 from dotenv import load_dotenv
 import os
-import torch
 from flask import request
+import torch
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM, AutoModel
 from pinecone import Pinecone
 
