@@ -18,9 +18,15 @@ function SupportHero() {
   };
   const formatTextAsHTML = (text: string): string => {
     return text
-      .replace(/\*\*(.*?)\*\*/g, '$1')  // Remove **bold** markers
-      .replace(/\n+/g, ' ');  // Replace newlines with a single space                
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')   // Convert **text** to <strong>text</strong>
+      .replace(/^\*\s(.+)$/gm, '• $1')                    // Convert lines starting with * to bullet points
+      .replace(/(\w+):/g, '<strong>$1:</strong>')         // Bold text before colons
+      .replace(/\n/g, '<br>')                             // Convert newlines to <br> tags
+      .replace(/(\d+)\.\s/g, '<br>$1. ')                  // Add line breaks for numbered lists
+      .replace(/\n\s*[-]\s/g, '<br>• ')                   // Add line breaks and bullets for lists with dashes
+      .replace(/\n{2,}/g, '<br><br>');                    // Convert multiple newlines to <br><br>
   };
+  
 
   const [conversation, setConversation] = useState<Message[]>([
     { text: "Hey, how can I help you?", sender: "not_user" },
