@@ -1,4 +1,4 @@
-import React, {useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input";
 import SectionDisplay from "../sectionDisplay/sectionDisplay";
 import {
@@ -16,14 +16,27 @@ import { BACKEND_URI } from "@/CONSTANTS";
 import { ToastErrors, ToastInfo } from "@/Helpers/toastError";
 import { CircularProgress } from "@nextui-org/react";
 import Image from "next/image";
+import { GraphSchema } from "@/Interfaces";
+import LineChart from "@/my_components/Charts/charts";
+import { PatientData } from "@/Data/PatientData";
 
-interface Props{
-  searchVitals: string,
-  setSearchVitals: React.Dispatch<React.SetStateAction<string>>
+interface Props {
+  searchVitals: string;
+  setSearchVitals: React.Dispatch<React.SetStateAction<string>>;
 }
 
 function VitalsTop(props: Props) {
-  const {searchVitals, setSearchVitals} = props;
+  const [chartGenerated, setChartGenerated] = useState(false);
+  const [newChart, setNewChart] = useState<GraphSchema>({
+    id: "",
+    name: "",
+    data: [],
+    description: "",
+    sourceList: [],
+    unit: "",
+    queryText: "",
+  });
+  const { searchVitals, setSearchVitals } = props;
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [loading, setLoading] = useState(false);
   const [prompt, setPrompt] = useState("");
@@ -33,6 +46,18 @@ function VitalsTop(props: Props) {
     "My protein levels in the past 3 months?",
     "Blood pressure in the past 10 reports?",
   ];
+  const [labels, setLabels] = useState<string[]>([]); // X-axis dates
+  const [Data, setData] = useState<number[]>([]); // Y-axis parameter values
+  useEffect(() => {
+    const newData = [];
+    const newLabels = [];
+    for (let i = 0; i < newChart.data.length; i++) {
+      newData.push(Number(newChart.data[i].value));
+      newLabels.push(newChart.data[i].date);
+    }
+    setData(newData);
+    setLabels(newLabels);
+  }, [newChart]);
 
   return (
     <div className="width-[100%] my-4 flex h-[7%] cursor-pointer items-center justify-between font-medium">
@@ -45,7 +70,13 @@ function VitalsTop(props: Props) {
           placeholder="Search Graph"
           startContent={
             <div>
-              <Image width={100} height={100} src="/icons/search.png" className="w-[15px]" alt="logo" />
+              <Image
+                width={100}
+                height={100}
+                src="/icons/search.png"
+                className="w-[15px]"
+                alt="logo"
+              />
             </div>
           }
           value={searchVitals}
@@ -58,53 +89,220 @@ function VitalsTop(props: Props) {
               onOpen();
             }}
           >
-            <Image width={100} height={100} src="/icons/additionH.png" className="w-[15px]" alt="logo" />
+            <Image
+              width={100}
+              height={100}
+              src="/icons/aiGenerated.png"
+              className="w-[15px]"
+              alt="logo"
+            />
           </div>
         </div>
         <Modal
           isOpen={isOpen}
-          onOpenChange={onOpenChange}
+          onOpenChange={() => {
+            onOpenChange();
+            setPrompt("");
+            setNewChart({
+              name: "",
+              id: "",
+              description: "",
+              data: [],
+              sourceList: [],
+              unit: "",
+              queryText: "",
+            });
+            setChartGenerated(false);
+          }}
           placement="top-center"
-          size="2xl"
+          size="3xl"
         >
           <ModalContent>
             {(onClose) => (
               <>
                 <ModalHeader className="flex flex-col items-center justify-center gap-1 font-medium">
-                  {"Make a New Report based Visualization"}
+                  <p className="flex items-center gap-1 text-lg font-semibold">
+                    <img
+                      src="/icons/aiGenerated.png"
+                      alt=""
+                      className="h-[20px] w-[20px]"
+                    />
+                    Make a New Chart
+                  </p>
                 </ModalHeader>
                 <ModalBody>
                   {(loading && (
                     <div className="flex h-full w-full items-center justify-center">
-                      <CircularProgress aria-label="Loading..." color="danger" />
+                      <CircularProgress
+                        aria-label="Loading..."
+                        color="danger"
+                      />
                     </div>
                   )) || (
-                  <div className="flex flex-col gap-5">
-                    <PlaceholdersAndVanishInput
-                      placeholders={placeholders}
-                      onChange={(e)=>setPrompt(e.target.value)}
-                      onSubmit={()=> console.log(prompt)}
-                    />
-                  </div>
+                    <>
+                      <div className="flex flex-col gap-5">
+                        <PlaceholdersAndVanishInput
+                          placeholders={placeholders}
+                          onChange={(e) => setPrompt(e.target.value)}
+                          onSubmit={async () => {
+                            try {
+                              setLoading(true);
+                              const response = await axios.post(
+                                `${BACKEND_URI}/patient/queryDateVal`,
+                                {
+                                  queryText: prompt,
+                                },
+                              );
+                              let nD = [];
+                              const dat = response.data.data.list;
+                              for (let i = 0; i < dat.length; i++) {
+                                const val = dat[i].value;
+                                let st = "";
+                                for (let j = 0; j < val.length; j++) {
+                                  if(val[j] === " "){break;}
+                                  st += val[j];
+                                }
+                                nD.push({
+                                  date: dat[i].date,
+                                  value: Number(st),
+                                });
+                              }
+                              setNewChart({
+                                name: response.data.data.title,
+                                id: response.data.data.id,
+                                description: response.data.data.description,
+                                data: nD,
+                                sourceList: response.data.data.sourceList,
+                                unit: response.data.data.unit,
+                                queryText: prompt,
+                              });
+                              setChartGenerated(true);
+                            } catch (e) {
+                              ToastErrors("Add Report Failed");
+                            } finally {
+                              setLoading(false);
+                            }
+                          }}
+                        />
+                      </div>
+                      {chartGenerated && (
+                        <div className="flex h-[40vh] gap-2">
+                          <LineChart
+                            labels={labels}
+                            data={Data}
+                            xtitle="Date"
+                            ytitle={""}
+                            name={newChart.name}
+                            xlabelOn={false}
+                          />
+                          <div className="max-h-[40vh] w-[20%] overflow-y-auto">
+                            <p className="text-sm font-normal">
+                              <span className="text-sm font-normal text-textColorLight">
+                                Prompt:{" "}
+                              </span>
+                              {prompt}
+                            </p>
+                            <p className="text-lg font-semibold">
+                              <span className="text-sm font-normal text-textColorLight">
+                                Name:{" "}
+                              </span>
+                              {newChart.name}
+                            </p>
+
+                            <p className="text-sm font-normal">
+                              <span className="text-sm font-normal text-textColorLight">
+                                Unit:{" "}
+                              </span>
+                              {newChart.unit}
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                 </ModalBody>
                 <ModalFooter>
-                  <Button
-                    className="mx-auto bg-primaryColor text-white"
-                    variant="flat"
-                    onPress={async () => {
-                      try {
-                        setLoading(true);
-                        // TODO: API call to generate graph and all
-                      } catch (e) {
-                        ToastErrors("Add Report Failed");
-                      } finally {
-                        setLoading(false);
-                      }
-                    }}
-                  >
-                    Generate ✨
-                  </Button>
+                  <div className="flex gap-2">
+                    {chartGenerated && (
+                      <>
+                      <Button
+                      color="primary"
+                      variant="flat"
+                      onPress={async () => {
+                        try {
+                          setLoading(true);
+                          const response = await axios.post(
+                            `${BACKEND_URI}/patient/queryDateVal`,
+                            {
+                              queryText: prompt,
+                            },
+                          );
+                          let nD = [];
+                          const dat = response.data.data.list;
+                          for (let i = 0; i < dat.length; i++) {
+                            const val = dat[i].value;
+                            let st = "";
+                            for (let j = 0; j < val.length; j++) {
+                              if(val[j] === " "){break;}
+                              st += val[j];
+                            }
+                            nD.push({
+                              date: dat[i].date,
+                              value: Number(st),
+                            });
+                          }
+                          setNewChart({
+                            name: response.data.data.title,
+                            id: response.data.data.id,
+                            description: response.data.data.description,
+                            data: nD,
+                            sourceList: response.data.data.sourceList,
+                            unit: response.data.data.unit,
+                            queryText: prompt,
+                          });
+                          setChartGenerated(true);
+                        } catch (e) {
+                          ToastErrors("Add Report Failed");
+                        } finally {
+                          setLoading(false);
+                        }
+                      }}
+                    >
+                      {chartGenerated ? "Regenerate" : "Generate"} ✨
+                    </Button>
+                      <Button
+                        className="mx-auto bg-primaryColor text-white"
+                        variant="flat"
+                        onPress={async () => {
+                          try {
+                            setLoading(true);
+                            const response = await axios.post(
+                              `${BACKEND_URI}/patient/acceptChart`,
+                              {
+                                patientId: "",
+                                chartName: newChart.name,
+                                data: newChart.data,
+                                queryText: newChart.queryText,
+                                description: newChart.description,
+                                sourceList: newChart.sourceList,
+                                unit: newChart.unit
+                              },
+                            );
+                            setChartGenerated(false);
+                            setPrompt("");
+                            ToastInfo("Chart Added Successfully");
+                          } catch (e) {
+                            ToastErrors("Add Report Failed");
+                          } finally {
+                            setLoading(false);
+                          }
+                        }}
+                      >
+                        Save
+                      </Button>
+                      </>
+                    )}
+                  </div>
                 </ModalFooter>
               </>
             )}

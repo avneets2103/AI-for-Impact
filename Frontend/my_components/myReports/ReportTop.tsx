@@ -148,7 +148,7 @@ function ReportTop(props: Props) {
           value={reportSearch}
           onChange={(e) => setReportSearch(e.target.value)}
         />
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2"> 
           <div
             className="flex h-9 w-9 items-center justify-center rounded-full bg-secondaryColor"
             onClick={() => {

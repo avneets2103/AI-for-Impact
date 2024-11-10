@@ -9,12 +9,11 @@ import { useRouter } from 'next/navigation'
 import axios from '@/utils/axios'
 import { BACKEND_URI } from '@/CONSTANTS'
 import { logout } from '@/Helpers/logout'
-import { HealthGraphs } from '@/Data/HealthGraphs'
-// import CartHero from '../cartHero/cartHero'
-
+import { GraphSchema } from '@/Interfaces'
 
 function VitalsMain() {
     const Router = useRouter();
+    const [HealthGraphs, setHealthGraphs] = React.useState<Array<GraphSchema>>([]);
     useEffect(() => {
         const checkTokens = async () => {
             try {
@@ -35,6 +34,15 @@ function VitalsMain() {
               console.log("Access token invalid, trying refresh token...");
             }
         };
+        const getGraphs = async () => {
+            try {
+                const response = await axios.post(`${BACKEND_URI}/patient/getCharts`);
+                setHealthGraphs(response.data.data);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        getGraphs();
         checkTokens();
     }, [Router])
     const [searchVitals, setSearchVitals] = React.useState<string>("");

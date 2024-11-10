@@ -28,6 +28,9 @@ export const DoctorVitalsLayoutItem = ({
   name,
   data,
   description,
+  unit,
+  sourceList,
+  queryText
 }: GraphSchema) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [labels, setLabels] = useState<string[]>([]); // X-axis dates

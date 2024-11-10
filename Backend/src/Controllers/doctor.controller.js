@@ -103,6 +103,20 @@ const getPatientMedical = asyncHandler(async (req, res) => {
 
         reportList.reverse(); // Optional sorting for reports
 
+        const chartsList = patient.chartsList;
+        let newChartsList = [];
+        for (const chart of chartsList) {
+            const newChart = {
+                name: chart.chartName,
+                data: chart.data,
+                description: chart.description,
+                sourceList: chart.sourceList,
+                queryText: chart.queryText,
+                unit: chart.unit
+            }
+            newChartsList.push(newChart);
+        }
+
         const response = {
             sex: patient.sex,
             age: patient.age,
@@ -112,7 +126,8 @@ const getPatientMedical = asyncHandler(async (req, res) => {
             currentSymptoms: patient.currentSymptomsSummary || "",
             reportsList: reportList,
             absoluteSummary: patient.absoluteSummary || "",
-            note: docNote
+            note: docNote,
+            chartsList: newChartsList
         };
 
         return res.status(200).json(

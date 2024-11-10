@@ -399,9 +399,11 @@ const queryDateVal = asyncHandler(async (req, res) => {
 
 const acceptChart = asyncHandler(async (req, res) => {
   try {
-    const {patientId, chartName, data, queryText, description, sourceList, unit} = req.body;
+    let {patientId, chartName, data, queryText, description, sourceList, unit} = req.body;
+    console.log(req.user);
     if(!req.user.isDoctor){
-      patientId = req.user.patientDetails._id;
+      patientId = req.user.patientDetails._id.toString();
+      console.log(patientId);
     }
     const patient = await Patient.findById(patientId);
     if (!patient) {
@@ -439,6 +441,40 @@ const acceptChart = asyncHandler(async (req, res) => {
   }
 });
 
+const getCharts = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).populate("patientDetails");
+    if (!user || !user.patientDetails) {
+      throw new ApiError(404, "Patient not found");
+    }
+    const patient = await Patient.findById(user.patientDetails._id).populate("chartsList");
+    if (!patient) {
+      throw new ApiError(404, "Patient details not found");
+    }
+    const chartsList = [];
+    for (const chart of patient.chartsList) {
+      const newChart = {
+        id: chart._id,
+        name: chart.chartName,
+        data: chart.data,
+        description: chart.description,
+        sourceList: chart.sourceList,
+        queryText: chart.queryText,
+        unit: chart.unit
+      };
+      chartsList.push(newChart);
+    }
+    chartsList.reverse();
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, chartsList, "Chart list retrieved successfully")
+      );
+  } catch (error) {
+    throw new ApiError(500, "Something went wrong in getCharts");
+  }
+});
+
 export {
   getDoctorList,
   addDoctor,
@@ -450,5 +486,6 @@ export {
   queryReports,
   queryDateVal, 
   acceptChart,
-  addChatReport
+  addChatReport,
+  getCharts
 };

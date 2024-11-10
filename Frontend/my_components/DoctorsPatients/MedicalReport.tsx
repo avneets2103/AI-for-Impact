@@ -6,10 +6,9 @@ import { ReportsData } from "@/Data/ReportsData";
 import MyPatientReportHero from "./myPatientsReports";
 import DiagnosisAI from "./diagnosisAI";
 import { getPatientMedical, removePatient } from "@/Helpers/apiCalls";
-import { PatientDataSchema, PatientSchema } from "@/Interfaces";
+import { GraphSchema, PatientDataSchema, PatientSchema } from "@/Interfaces";
 import Image from "next/image";
 import { VitalsLayout, VitalsLayoutItem } from "../healthVitals/VitalsLayout";
-import { HealthGraphs } from "@/Data/HealthGraphs";
 import { DoctorVitalsLayout, DoctorVitalsLayoutItem } from "./DoctorVitalsLayout";
 import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input";
 import axios from "@/utils/axios";
@@ -36,6 +35,7 @@ const MedicalReport = ({ name, img, id, setPatList, onClose, absoluteSummary }: 
     reportsList: [],
     absoluteSummary: "",
     note: "",
+    chartsList: []
   });
 
   useEffect(() => {
@@ -133,13 +133,16 @@ const MedicalReport = ({ name, img, id, setPatList, onClose, absoluteSummary }: 
               onSubmit={() => console.log(prompt)}
             />
             <DoctorVitalsLayout className="w-full max-h-[65vh] overflow-y-scroll">
-              {HealthGraphs.map(({ id, name, data, description }) => (
+              {patientData.chartsList.map(({ id, name, data, description, unit, sourceList, queryText }) => (
                 <DoctorVitalsLayoutItem
                   key={id}
                   id={id}
                   name={name}
                   data={data}
                   description={description}
+                  unit={unit}
+                  sourceList={sourceList}
+                  queryText={queryText}
                 />
               ))}
             </DoctorVitalsLayout>
