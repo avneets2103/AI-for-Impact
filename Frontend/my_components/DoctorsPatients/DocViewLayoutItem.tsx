@@ -58,7 +58,7 @@ const DocViewLayoutItem = ({
           </div>
         </div>
       </div>
-
+     
       <Modal
         isOpen={isOpen}
         size="full"

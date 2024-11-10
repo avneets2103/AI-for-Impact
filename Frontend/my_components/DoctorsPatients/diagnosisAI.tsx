@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Message } from "@/Interfaces";
-import { Button } from "@nextui-org/react";
+import { Button, Input } from "@nextui-org/react";
+import { FLASK_SERVER } from "@/CONSTANTS";
+import axios from "axios";
 
 /**
  * The SupportHero component is a self-contained component that displays a chat interface with the user and the AI.
@@ -8,49 +10,24 @@ import { Button } from "@nextui-org/react";
  *
  * @returns {JSX.Element} The SupportHero component.
  */
-function DiagnosisAI() {
+
+interface Props{
+  id: string;
+}
+function DiagnosisAI({id}: Props) {
   /**
    * The conversation state is an array of messages.
    * Each message is an object with a text and a sender.
    */
   const [conversation, setConversation] = useState<Message[]>([
-    {
-      text: "A 22-year-old female patient presents with a palpable lump in her right breast, accompanied by nipple discharge and pain in the affected breast. Additionally, she reports swelling and redness in the right breast. These symptoms have been persistent and have prompted her to seek medical attention.",
-      sender: "user",
-    },
-    {
-      text: "Based on the symptoms, I'm considering a diagnosis of breast cancer. What do you think?",
-      sender: "user",
-    },
-    {
-      text: "I disagree, doctor. The patient's age and medical history suggest a low risk for breast cancer. Have you considered other possibilities, such as a breast abscess or mastitis?",
-      sender: "not_user",
-    },
-    {
-      text: "That's a good point, but the patient's symptoms persist despite her regular menstrual cycles and lack of recent infections. I still think breast cancer is a strong possibility.",
-      sender: "user",
-    },
-    {
-      text: "I understand your concern, doctor, but we should also consider the patient's family history. Although she has no known significant medical conditions, we should investigate further to rule out any genetic predispositions.",
-      sender: "not_user",
-    },
-    {
-      text: "I agree, let's order a genetic screening to assess her risk. However, I still believe breast cancer is a likely diagnosis. What about ordering a mammogram and ultrasound to confirm?",
-      sender: "user",
-    },
-    {
-      text: "I concur, doctor. A mammogram and ultrasound would provide valuable information. Additionally, we should also consider ordering a biopsy to confirm the diagnosis.",
-      sender: "not_user",
-    },
-    {
-      text: "Excellent suggestion, chatbot! Let's proceed with the biopsy and imaging tests. I'm confident that we'll be able to confirm the diagnosis and develop an effective treatment plan.",
-      sender: "user",
-    },
-    {
-      text: "I agree, doctor. Based on the test results, I believe we can confirm the diagnosis of breast cancer. Let's work together to develop a comprehensive treatment plan for the patient.",
-      sender: "not_user",
-    },
+    { text: "Hey, how can I help you?", sender: "not_user" },
   ]);
+
+  const cleanTextForDisplay = (text:string) => {
+    return text
+      .replace(/\*\*(.*?)\*\*/g, '$1')  // Remove **bold** markers
+      .replace(/\n+/g, ' ');  // Replace newlines with a single space
+  };
 
   /**
    * The chatBodyRef is a reference to the chat body element.
@@ -62,16 +39,39 @@ function DiagnosisAI() {
    * The inputText state is the text that the user has typed in the input field.
    */
   const [inputText, setInputText] = useState<string>("");
-
+  const [context, setContext] = useState("");
   /**
    * The handleSendMessage function is called when the user clicks the send button or presses enter.
    * It adds a new message to the conversation state and scrolls the chat body to the bottom.
    */
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (inputText.trim() === "") return;
     const newMessage: Message = { text: inputText.trim(), sender: "user" };
-    setConversation([...conversation, newMessage]);
+    setConversation((prev) => [...prev, newMessage]);
+    setWaitForRes(true);
     setInputText("");
+
+    try{
+      const res = await axios.post(`${FLASK_SERVER}/doctorChat/chat`, {
+        prompt: inputText,
+        context: context,
+        patientId: id
+      });
+      console.log("Response from server: ", res.data);
+      
+      // Update context with the new context from response
+      setContext(res.data.newContext);
+      
+      // Create the new message object for the bot response
+      const newMessage2: Message = { text: cleanTextForDisplay(res.data.response), sender: "not_user"};
+
+      // Add bot response to the conversation without overwriting
+      setConversation((prev) => [...prev, newMessage2]);
+    } catch (error){
+      console.log("Error in sending message to the server: ", error);
+    } finally {
+      setWaitForRes(false);
+    }
   };
 
   /**
@@ -93,11 +93,12 @@ function DiagnosisAI() {
     }
   }, [conversation]);
 
+  const [waitForRes, setWaitForRes] = useState(false);
   return (
-    <div className="flex flex-col bg-color1">
+    <div className="flex flex-col justify-between bg-color1 m-0 p-0 h-full">
       <div
         ref={chatBodyRef}
-        className="flex max-h-[60vh] flex-col overflow-y-scroll p-[15px] text-textColorDark"
+        className="flex h-[40rem] my-2 flex-col overflow-y-scroll p-[15px] text-textColorDark"
       >
         {conversation.map((message, index) => (
           <div
@@ -112,13 +113,16 @@ function DiagnosisAI() {
           </div>
         ))}
       </div>
-      <div className="flex flex-col items-center p-[10px] pr-0">
-        <div className="w-[100%] p-1">
-          <input
+      <div className="flex flex-col sticky bottom-0 bg-white items-center p-[10px] -pb-[10px] pr-0">
+        <div className="w-[100%] p-1 flex flex-row justify-between items-center px-1">
+
+          <Input
+            color={waitForRes?"warning":"primary"}
+            disabled={waitForRes}
             type="text"
-            placeholder="Type a message..."
-            className="bg-lowContrastColor @onFocus:border-primaryColor mr-[10px] w-[94%] rounded-[20px] border-[1px] border-[#ccc] p-[10px] text-black text-textColorDark"
+            placeholder={waitForRes?"Waiting for response...":"Type a message..."}
             value={inputText}
+            className="bg-lowContrastColor @onFocus:border-primaryColor mr-[10px] w-[97%] rounded-[20px] border-[1px] text-black text-textColorDark"
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={handleEnter}
           />
@@ -126,7 +130,7 @@ function DiagnosisAI() {
             className="sn-send-button h-10 w-10"
             onClick={handleSendMessage}
           >
-            ➤
+            {waitForRes ? "◼" : "➤"}
           </button>
         </div>
       </div>

@@ -63,6 +63,7 @@ interface GraphSchema{
 interface Message {
     text: string;
     sender: 'not_user' | 'user';
+    
 }
 
 interface PatientDataSchema {
