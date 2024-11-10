@@ -3,7 +3,7 @@ import { Message } from "@/Interfaces";
 import { Button, Input } from "@nextui-org/react";
 import { FLASK_SERVER } from "@/CONSTANTS";
 import axios from "axios";
-
+import Loader from "@/components/ui/Loader";
 /**
  * The SupportHero component is a self-contained component that displays a chat interface with the user and the AI.
  * It handles user input, sending messages, and displaying the conversation.
@@ -28,6 +28,17 @@ function DiagnosisAI({id}: Props) {
       .replace(/\*\*(.*?)\*\*/g, '$1')  // Remove **bold** markers
       .replace(/\n+/g, ' ');  // Replace newlines with a single space
   };
+  const formatTextAsHTML = (text: string): string => {
+    return text
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')   // Convert **text** to <strong>text</strong>
+      .replace(/^\*\s(.+)$/gm, '• $1')                    // Convert lines starting with * to bullet points
+         // Bold text before colons
+      .replace(/\n/g, '<br>')                             // Convert newlines to <br> tags
+      .replace(/(\d+)\.\s/g, '<br>$1. ')                  // Add line breaks for numbered lists
+      .replace(/\n\s*[-]\s/g, '<br>• ')                   // Add line breaks and bullets for lists with dashes
+      .replace(/\n{2,}/g, '<br><br>');                    // Convert multiple newlines to <br><br>
+  };
+  
 
   /**
    * The chatBodyRef is a reference to the chat body element.
@@ -63,7 +74,7 @@ function DiagnosisAI({id}: Props) {
       setContext(res.data.newContext);
       
       // Create the new message object for the bot response
-      const newMessage2: Message = { text: cleanTextForDisplay(res.data.response), sender: "not_user"};
+      const newMessage2: Message = { text: formatTextAsHTML(res.data.response), sender: "not_user"};
 
       // Add bot response to the conversation without overwriting
       setConversation((prev) => [...prev, newMessage2]);
@@ -102,16 +113,27 @@ function DiagnosisAI({id}: Props) {
       >
         {conversation.map((message, index) => (
           <div
-            key={index}
-            className={
-              message.sender === "user"
-                ? "mb-[10px] flex self-end rounded-[10px] bg-color2 p-[10px] max-w-[70%]"
-                : "bg-lowContrastColor mb-[10px] flex self-start rounded-[10px] p-[10px] max-w-[70%]"
-            }
-          >
+          key={index}
+          className={
+            message.sender === "user"
+              ? "mb-[10px] flex self-end rounded-[10px] bg-color2 px-[10px] py-[8px] max-w-[70%]"
+              : "bg-lowContrastColor mb-[10px] flex self-start rounded-[10px] px-[10px] py-[8px] max-w-[70%]"
+          }
+        >
+          {message.sender === "user" ? (
             <span>{message.text}</span>
-          </div>
+          ) : (
+            <span dangerouslySetInnerHTML={{ __html: message.text }} />
+          )}
+        </div>
+        
         ))}
+          {waitForRes && (
+          <div className="flex justify-center items-center">
+            <Loader /> {/* Display loader while waiting for response */}
+          </div>
+        )}
+
       </div>
       <div className="flex flex-col sticky bottom-0 bg-white items-center p-[10px] -pb-[10px] pr-0">
         <div className="w-[100%] p-1 flex flex-row justify-between items-center px-1">
