@@ -22,13 +22,13 @@ model = genai.GenerativeModel(
   model_name="gemini-1.5-flash",
   generation_config=generation_config,
 )
-chat_session = model.start_chat(
-  history=[
-  ]
-)
 
 # Update knowledge base endpoint
 def update_kb():
+    chat_session = model.start_chat(
+        history=[
+        ]
+    )
     data = request.get_json()
     report_text = data.get('reportText')
     absolute_text = data.get('absoluteText')
@@ -100,11 +100,11 @@ tokenizer2 = AutoTokenizer.from_pretrained("dmis-lab/biobert-base-cased-v1.1")
 model2 = AutoModel.from_pretrained("dmis-lab/biobert-base-cased-v1.1")
 index_name = os.getenv("PINECONE_INDEX_NAME")
 api_key = os.getenv("PINECONE_API_KEY")
-pc = Pinecone(api_key=api_key)
-index = pc.Index(index_name)
 
 # Embed report endpoint
 def embed_report():
+    pc = Pinecone(api_key=api_key)
+    index = pc.Index(index_name)
     data = request.get_json()
     reportText = data.get('reportText')
     reportId = data.get('reportId')
@@ -137,6 +137,12 @@ def embed_report():
     return jsonify({"message": "Report embedded and stored successfully"}), 201
 
 def generalReportQuery(request):
+    chat_session = model.start_chat(
+        history=[
+        ]
+    )
+    pc = Pinecone(api_key=api_key)
+    index = pc.Index(index_name)
     data = request.get_json()
     patientId = data.get('patientId')
     queryText = data.get('queryText')
@@ -169,7 +175,13 @@ def generalReportQuery(request):
     }, 201
 
 def dateValQuery():
+    chat_session = model.start_chat(
+        history=[
+        ]
+    )
     data = request.get_json()
+    pc = Pinecone(api_key=api_key)
+    index = pc.Index(index_name)
     queryText = data.get("queryText")
     patientId = data.get("patientId")
 
@@ -195,7 +207,7 @@ def dateValQuery():
         searchText += result.metadata['reportText']
         sourcesList.append(result.metadata['reportLink'])
 
-    response = chat_session.send_message(searchText + 'From the above text, find key value pairs for the query in type date=>value. Keep the format fixed like this example: {"date=>value": ["2023-11-12=>142", "2024-11-03=>156"], "unit": "mg/dL", "description": "Haeomoglobin concentration level in the blood measured in mg/dL", "title":"Haemoglobin concentration"}. Make sure the order of value is chronoloical in order' + queryText)
+    response = chat_session.send_message(searchText + 'From the above text, find key value pairs for the query in type date=>value. Keep the format fixed like this example: {"date=>value": ["2023-11-12=>142", "2024-11-03=>156"], "unit": "mg/dL", "description": "Haeomoglobin concentration level in the blood measured in mg/dL", "title":"Haemoglobin concentration"}. Make sure the date val pairs are in order by chronoloical order of the dates, Very IMPORTANT' + queryText)
     try:
         # Ensure response is a valid JSON string
         response_data = json.loads(response.text.strip("```json")) 

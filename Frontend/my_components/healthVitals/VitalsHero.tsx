@@ -18,7 +18,7 @@ function VitalsHero({ data, searchVitals }: Props) {
     <VitalsLayout className="w-full max-h-[82vh] overflow-y-scroll">
       {filteredData.map(
         ({
-          id, name, data, description,
+          id, name, data, description, unit, sourceList, queryText
         }) => (
           <VitalsLayoutItem
             key={id}
@@ -26,6 +26,9 @@ function VitalsHero({ data, searchVitals }: Props) {
             name={name}
             data={data}
             description={description}
+            unit={unit}
+            sourceList={sourceList}
+            queryText={queryText}
           />
         ),
       )}

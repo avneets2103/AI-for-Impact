@@ -6,13 +6,13 @@ import { ReportsData } from "@/Data/ReportsData";
 import MyPatientReportHero from "./myPatientsReports";
 import DiagnosisAI from "./diagnosisAI";
 import { getPatientMedical, removePatient } from "@/Helpers/apiCalls";
-import { PatientDataSchema, PatientSchema } from "@/Interfaces";
+import { GraphSchema, PatientDataSchema, PatientSchema } from "@/Interfaces";
 import Image from "next/image";
 import { VitalsLayout, VitalsLayoutItem } from "../healthVitals/VitalsLayout";
-import { HealthGraphs } from "@/Data/HealthGraphs";
 import { DoctorVitalsLayout, DoctorVitalsLayoutItem } from "./DoctorVitalsLayout";
 import { ToastErrors, ToastInfo } from "@/Helpers/toastError";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+import Loader from "@/components/ui/Loader";
 import axios from "@/utils/axios";
 
 import { BACKEND_URI } from "@/CONSTANTS";
@@ -49,6 +49,7 @@ const MedicalReport = ({ name, img, id, setPatList, onClose, absoluteSummary }: 
     reportsList: [],
     absoluteSummary: "",
     note: "",
+    chartsList: []
   });
 
   useEffect(() => {
@@ -147,13 +148,16 @@ const MedicalReport = ({ name, img, id, setPatList, onClose, absoluteSummary }: 
               onSubmit={() => console.log(prompt)}
             />
             <DoctorVitalsLayout className="w-full max-h-[65vh] overflow-y-scroll">
-              {HealthGraphs.map(({ id, name, data, description }) => (
+              {patientData.chartsList.map(({ id, name, data, description, unit, sourceList, queryText }) => (
                 <DoctorVitalsLayoutItem
                   key={id}
                   id={id}
                   name={name}
                   data={data}
                   description={description}
+                  unit={unit}
+                  sourceList={sourceList}
+                  queryText={queryText}
                 />
               ))}
             </DoctorVitalsLayout>
@@ -169,9 +173,11 @@ const MedicalReport = ({ name, img, id, setPatList, onClose, absoluteSummary }: 
   const {isOpen, onOpen, onOpenChange} = useDisclosure();
   const [queryResponseText, setQueryResponseText] = useState("");
   const [queryResponseShow, setQueryResponseShow] = useState(false);
+  const [LoadingText,setLoadingText]=useState(true);
   // const [prompt, setPrompt] = useState("");
   const [oldPrompt, setOldPrompt] = useState(""); // Loader state
   const [context, setContext] = useState("");
+
   
 
   const cleanTextForDisplay = (text: string): string => {
@@ -281,6 +287,8 @@ const MedicalReport = ({ name, img, id, setPatList, onClose, absoluteSummary }: 
             placeholders={placeholders}
             onChange={(e) => setPrompt(e.target.value)}
             onSubmit={async () => {
+              setQueryResponseShow(false);
+              setLoadingText(false);
               const response = await axios.post(`${BACKEND_URI}/patient/queryReports`, {
                 queryText: prompt,
                 patientId: id,
@@ -289,9 +297,15 @@ const MedicalReport = ({ name, img, id, setPatList, onClose, absoluteSummary }: 
               setOldPrompt(prompt);
               setQueryResponseText(response.data.data.response !== "" ? response.data.data.response : "Oops !!! Answer could not be found.");
               setQueryResponseShow(true);
+              setLoadingText(true);
             }}
           />
         </div>
+        {!queryResponseShow && !LoadingText && (
+  <div className="flex justify-center items-center h-full">
+    <Loader />
+  </div>
+)}
         {queryResponseShow && (
           <div className="flex gap-2 items-start max-h-[40vh] overflow-y-auto relative">
             <div className="flex flex-col gap-1 items-start">
@@ -306,10 +320,13 @@ const MedicalReport = ({ name, img, id, setPatList, onClose, absoluteSummary }: 
                 <img src="/icons/copy.png" alt="" className="w-[15px] h-[15px]" />
               </Button>
             </div>
-            <div>
-              <p className="text-md font-medium">{oldPrompt}</p>
+            
+            {
+             <div>
+              {/*<p className="text-md font-medium">{oldPrompt}</p>*/}
               <TextGenerateEffect words={cleanTextForDisplay(queryResponseText)} />
             </div>
+            }
            
           </div>
         )}

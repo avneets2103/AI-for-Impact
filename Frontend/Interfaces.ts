@@ -54,7 +54,10 @@ interface GraphSchema{
         date: string;
         value: number;
     }[];
-    description?: string;
+    description: string;
+    sourceList: string[];
+    unit: string;
+    queryText: string;
 } 
 
 interface Message {
@@ -72,7 +75,8 @@ interface PatientDataSchema {
     currentSymptoms: string,
     reportsList: ReportsSchema[],
     absoluteSummary: string,
-    note: string
+    note: string,
+    chartsList: GraphSchema[]
 }
 
 export type {
