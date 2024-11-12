@@ -36,7 +36,7 @@ import {
           borderColor: theme==="dark"?"#CCC":"#333",
           borderWidth: 2,
           fill: true,
-          backgroundColor: theme==="dark"?"#7379FF":"#7379FF",
+          backgroundColor: theme==="dark"?"#853CBE":"#853CBE",
         },
       ],
     };

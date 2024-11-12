@@ -162,10 +162,10 @@ const Sidebar: React.FC = () => {
       <div className="flex h-full w-[3rem] flex-col justify-between gap-[2rem] py-[1rem]">
         <div className="flex flex-col items-center justify-center gap-[0.7rem]">
           <div>
-            <Image width={100} height={100}
+            <Image width={120} height={120}
               src="/icons/logo.png"
               alt="logo"
-              className="w-full p-[5px]"
+              className="w-full"
             />
           </div>
           <div className="flex w-full flex-col items-center justify-center gap-[0.8rem] rounded-[25px] bg-color1 py-[1rem]">

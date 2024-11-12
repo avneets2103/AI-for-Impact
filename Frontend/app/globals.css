@@ -28,7 +28,7 @@ body {
 
 @layer base {
   :root {
-    --primary-color: #7379FF;
+    --primary-color: #853CBE;
     --secondary-color: #242424;
     --bg-color: #E9EBF6;
     --text-color-light: #666666;
@@ -70,7 +70,7 @@ body {
   }
 
   .dark {
-    --primary-color: #7379FF;
+    --primary-color: #853CBE;
     --secondary-color: #242424;
     --bg-color: #0F0F0F;
     --text-color-light: #707070;
