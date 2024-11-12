@@ -42,7 +42,7 @@ function ReportTop(props: Props) {
   const [addReport, setAddReport] = useState(false);
   const [queryResponseText, setQueryResponseText] = useState("");
   const [queryResponseShow, setQueryResponseShow] = useState(false);
-  const [LoadingText,setLoadingText]=useState(true);
+  const [LoadingText, setLoadingText] = useState(true);
 
   const copyToClipboard = async () => {
     try {
@@ -128,11 +128,11 @@ function ReportTop(props: Props) {
   };
   const cleanTextForDisplay = (text: string): string => {
     return text
-      .replace(/\*\*(.*?)\*\*/g, '$1')  // Remove **bold** markers
-      .replace(/[^\w\s\d\.\,\!\?\-]/g, '') // Remove special characters (excluding common punctuation)
-      .replace(/\n+/g, ' ')             // Replace multiple newlines with a single space
-      .replace(/(\d+\.\s)/g, '\n$1')    // Insert newline before numbered points
-      .trim();                          // Trim any excess whitespace at the start/end
+      .replace(/\*\*(.*?)\*\*/g, "$1") // Remove **bold** markers
+      .replace(/[^\w\s\d\.\,\!\?\-]/g, "") // Remove special characters (excluding common punctuation)
+      .replace(/\n+/g, " ") // Replace multiple newlines with a single space
+      .replace(/(\d+\.\s)/g, "\n$1") // Insert newline before numbered points
+      .trim(); // Trim any excess whitespace at the start/end
   };
 
   return (
@@ -158,7 +158,7 @@ function ReportTop(props: Props) {
           value={reportSearch}
           onChange={(e) => setReportSearch(e.target.value)}
         />
-        <div className="flex items-center gap-2"> 
+        <div className="flex items-center gap-2">
           <div
             className="flex h-9 w-9 items-center justify-center rounded-full bg-secondaryColor"
             onClick={() => {
@@ -211,12 +211,18 @@ function ReportTop(props: Props) {
             {(onClose) => (
               <>
                 <ModalHeader className="flex flex-col items-center justify-center gap-1 font-medium">
-                  {addReport ? "Add Report" : 
-                  <p className="text-lg font-semibold flex gap-1 items-center">
-                    <img src="/icons/aiGenerated.png" alt="" className="w-[20px] h-[20px]"/>
-                    Ask your Reports
-                  </p>
-                  }
+                  {addReport ? (
+                    "Add Report"
+                  ) : (
+                    <p className="flex items-center gap-1 text-lg font-semibold">
+                      <img
+                        src="/icons/aiGenerated.png"
+                        alt=""
+                        className="h-[20px] w-[20px]"
+                      />
+                      Ask your Reports
+                    </p>
+                  )}
                 </ModalHeader>
                 <ModalBody className="max-h-[60vh] overflow-y-scroll">
                   {loading ? (
@@ -228,104 +234,126 @@ function ReportTop(props: Props) {
                     </div>
                   ) : (
                     <>
-                      { addReport ?
-                      <div className="flex flex-col gap-5">
-                        <FileUploadLimited
-                          onChange={handleFileUpload}
-                          maxFileCount={1}
-                        />
-                        <div className="flex flex-col gap-2">
-                          <p className="px-2 text-sm text-textColorLight">
-                            Enter Report Details:{" "}
-                          </p>
-                          <div className="flex flex-row items-center gap-2">
-                            <p className="flex h-10 items-center rounded-xl border-1 px-2 text-center text-sm text-textColorLight">
-                              What?{" "}
-                            </p>
-                            <Input
-                              variant="underlined"
-                              radius="sm"
-                              placeholder="Eg: Blood test report"
-                              value={what}
-                              onChange={(e) => setWhat(e.target.value)}
-                            />
-                          </div>
-                          <div className="flex flex-row items-center gap-2">
-                            <p className="flex h-10 items-center rounded-xl border-1 px-2 text-center text-sm text-textColorLight">
-                              When?{" "}
-                            </p>
-                            <Input
-                              variant="underlined"
-                              radius="sm"
-                              placeholder="Eg: 20/10/2014"
-                              value={when}
-                              onChange={(e) => setWhen(e.target.value)}
-                            />
-                          </div>
-                          <div className="flex flex-row items-center gap-2">
-                            <p className="flex h-10 items-center rounded-xl border-1 px-2 text-center text-sm text-textColorLight">
-                              Where?{" "}
-                            </p>
-                            <Input
-                              variant="underlined"
-                              radius="sm"
-                              placeholder="XYZ Hospital"
-                              value={where}
-                              onChange={(e) => setWhere(e.target.value)}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      :
-                      <div className="flex flex-col">
-                        <div className="pb-4">
-                          <PlaceholdersAndVanishInput
-                            placeholders={placeholders}
-                            onChange={(e)=>setPrompt(e.target.value)}
-                            onSubmit={async ()=> {
-                              setQueryResponseShow(false);
-                              setLoadingText(false);
-                              const response = await axios.post(`${BACKEND_URI}/patient/queryReports`, {
-                                "queryText": prompt
-                              });
-                              setOldPrompt(prompt);
-
-                            setQueryResponseText(response.data.data.response!==""?"Oops !!! Answer could not be found .":response.data.data.response);
-
-                              setQueryResponseShow(true);
-                              setLoadingText(true);
-                            }} 
+                      {addReport ? (
+                        <div className="flex flex-col gap-5">
+                          <FileUploadLimited
+                            onChange={handleFileUpload}
+                            maxFileCount={1}
                           />
-                        </div>
-                        {!queryResponseShow && !LoadingText && (
-  <div className="flex justify-center items-center h-full">
-    <Loader />
-  </div>
-)}
-                        {
-                          queryResponseShow ? 
-                          <div className="flex gap-2 items-start max-h-[40vh] overflow-y-auto relative">
-                            <div className="flex flex-col gap-1 items-start">
-                              <Button color="primary" isIconOnly className="top-0 left-0"><img src="/icons/aiGenerated.png" alt="" className="w-[20px] h-[20px]"/></Button>
-                              <Button isIconOnly className="top-0 left-0"><img src="/icons/copy.png" alt="" className="w-[15px] h-[15px]" onClick={
-                                copyToClipboard
-                              }/></Button>
+                          <div className="flex flex-col gap-2">
+                            <p className="px-2 text-sm text-textColorLight">
+                              Enter Report Details:{" "}
+                            </p>
+                            <div className="flex flex-row items-center gap-2">
+                              <p className="flex h-10 items-center rounded-xl border-1 px-2 text-center text-sm text-textColorLight">
+                                What?{" "}
+                              </p>
+                              <Input
+                                variant="underlined"
+                                radius="sm"
+                                placeholder="Eg: Blood test report"
+                                value={what}
+                                onChange={(e) => setWhat(e.target.value)}
+                              />
                             </div>
-                            <div>
-                              <p className="text-md font-medium">{oldPrompt}</p>
-                              <TextGenerateEffect words={cleanTextForDisplay(queryResponseText)}/>
+                            <div className="flex flex-row items-center gap-2">
+                              <p className="flex h-10 items-center rounded-xl border-1 px-2 text-center text-sm text-textColorLight">
+                                When?{" "}
+                              </p>
+                              <Input
+                                variant="underlined"
+                                radius="sm"
+                                placeholder="Eg: 20/10/2014"
+                                value={when}
+                                onChange={(e) => setWhen(e.target.value)}
+                              />
+                            </div>
+                            <div className="flex flex-row items-center gap-2">
+                              <p className="flex h-10 items-center rounded-xl border-1 px-2 text-center text-sm text-textColorLight">
+                                Where?{" "}
+                              </p>
+                              <Input
+                                variant="underlined"
+                                radius="sm"
+                                placeholder="XYZ Hospital"
+                                value={where}
+                                onChange={(e) => setWhere(e.target.value)}
+                              />
                             </div>
                           </div>
-                          :
-                          <></>
-                        }
-                      </div>
-                      }
+                        </div>
+                      ) : (
+                        <div className="flex flex-col">
+                          <div className="pb-4">
+                            <PlaceholdersAndVanishInput
+                              placeholders={placeholders}
+                              onChange={(e) => setPrompt(e.target.value)}
+                              onSubmit={async () => {
+                                setQueryResponseShow(false);
+                                setLoadingText(false);
+                                const response = await axios.post(
+                                  `${BACKEND_URI}/patient/queryReports`,
+                                  {
+                                    queryText: prompt,
+                                  },
+                                );
+                                setOldPrompt(prompt);
+
+                                setQueryResponseText(
+                                  response.data.data.response
+                                );
+
+                                setQueryResponseShow(true);
+                                setLoadingText(true);
+                              }}
+                            />
+                          </div>
+                          {!queryResponseShow && !LoadingText && (
+                            <div className="flex h-full items-center justify-center">
+                              <Loader />
+                            </div>
+                          )}
+                          {queryResponseShow ? (
+                            <div className="relative flex max-h-[40vh] items-start gap-2 overflow-y-auto">
+                              <div className="flex flex-col items-start gap-1">
+                                <Button
+                                  color="primary"
+                                  isIconOnly
+                                  className="left-0 top-0"
+                                >
+                                  <img
+                                    src="/icons/aiGenerated.png"
+                                    alt=""
+                                    className="h-[20px] w-[20px]"
+                                  />
+                                </Button>
+                                <Button isIconOnly className="left-0 top-0">
+                                  <img
+                                    src="/icons/copy.png"
+                                    alt=""
+                                    className="h-[15px] w-[15px]"
+                                    onClick={copyToClipboard}
+                                  />
+                                </Button>
+                              </div>
+                              <div>
+                                <p className="text-md font-medium">
+                                  {oldPrompt}
+                                </p>
+                                <TextGenerateEffect
+                                  words={cleanTextForDisplay(queryResponseText)}
+                                />
+                              </div>
+                            </div>
+                          ) : (
+                            <></>
+                          )}
+                        </div>
+                      )}
                     </>
                   )}
                 </ModalBody>
-                {
-                  addReport ? 
+                {addReport ? (
                   <ModalFooter>
                     <>
                       <Button
@@ -346,9 +374,9 @@ function ReportTop(props: Props) {
                       </Button>
                     </>
                   </ModalFooter>
-                  :
+                ) : (
                   <></>
-                }
+                )}
               </>
             )}
           </ModalContent>
