@@ -115,7 +115,7 @@ function VitalsTop(props: Props) {
             setChartGenerated(false);
           }}
           placement="top-center"
-          size="3xl"
+          size="4xl"
         >
           <ModalContent>
             {(onClose) => (
