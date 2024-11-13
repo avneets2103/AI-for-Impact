@@ -38,6 +38,7 @@
     "HackSmiths": "file:",
     "input-otp": "^1.2.4",
     "js-cookie": "^3.0.5",
+    "lucide-react": "^0.456.0",
     "next": "14.2.3",
     "next-auth": "^4.24.7",
     "next-themes": "^0.3.0",

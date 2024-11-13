@@ -35,7 +35,7 @@ export function FloatingDockDemo() {
       href: "#expertise",
     },
     {
-      title: "About Us",
+      title: "About Us and FAQs",
       icon: (
         <Image
           src="/icons/qn.png"
