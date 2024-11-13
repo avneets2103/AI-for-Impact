@@ -107,7 +107,7 @@ export default function Home() {
         <div className="grid w-full grid-cols-2 gap-2">
           <div className="relative flex h-[25vh] w-full transform overflow-clip rounded-lg bg-[#0b0b0b] transition duration-300 hover:-translate-x-2 hover:-translate-y-2 hover:scale-100 hover:shadow-lg">
             <div className="w-3/4">
-              <img src="/images/dna.png" alt="logo" className="w-full" />
+              <img src="/images/DNA.png" alt="logo" className="w-full" />
             </div>
             <div className="absolute right-0 top-0 flex h-full w-[40%] items-center justify-start p-4 text-[1.5rem] font-semibold text-white backdrop-blur-sm">
               Context Aware Analysis
