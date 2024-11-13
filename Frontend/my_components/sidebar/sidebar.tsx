@@ -233,7 +233,7 @@ const Sidebar: React.FC = () => {
           </div>
           <div className="flex h-[2.8rem] w-[2.8rem] flex-col items-center justify-center rounded-[50%] bg-color1">
             <Image width={100} height={100}
-              src={`/icons/avatar${Number(Cookies.get("avatarNumber")) || 10}.png`}
+              src={`/icons/avatar${Number(Cookies.get("avatarNumber")) || 7}.png`}
               alt={"avatar"}
               className="w-[95%]"
             />

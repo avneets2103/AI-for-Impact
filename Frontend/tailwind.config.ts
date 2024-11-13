@@ -79,6 +79,10 @@ const config = {
         sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
+        marquee: {
+          '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(-100%)' },
+        },
         // accordian animations
         "accordion-down": {
           from: { height: "0" },
@@ -141,6 +145,7 @@ const config = {
         fifth: "moveInCircle 20s ease infinite",
         // otp animations
         "caret-blink": "caret-blink 1.25s ease-out infinite",
+        marquee: 'marquee 25s linear infinite',
       },
     },
   },

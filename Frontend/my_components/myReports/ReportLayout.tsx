@@ -56,13 +56,13 @@ export const ReportLayoutItem = ({
   };
   const cleanTextForDisplay = (text: string): string => {
     return text
-      .replace(/\*\*(.*?)\*\*/g, '$1')  // Remove **bold** markers
-      .replace(/[^\w\s\d\.\,\!\?\-]/g, '') // Remove special characters (excluding common punctuation)
-      .replace(/\n+/g, ' ')             // Replace multiple newlines with a single space
-      .replace(/(\d+\.\s)/g, '\n$1')    // Insert newline before numbered points
-      .trim();                          // Trim any excess whitespace at the start/end
+      .replace(/\*\*(.*?)\*\*/g, "$1") // Remove **bold** markers
+      .replace(/[^\w\s\d\.\,\!\?\-]/g, "") // Remove special characters (excluding common punctuation)
+      .replace(/\n+/g, " ") // Replace multiple newlines with a single space
+      .replace(/(\d+\.\s)/g, "\n$1") // Insert newline before numbered points
+      .trim(); // Trim any excess whitespace at the start/end
   };
-  
+
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   return (
     <div
@@ -100,25 +100,33 @@ export const ReportLayoutItem = ({
           {(onClose) => (
             <>
               <ModalBody>
-                  <div className="p-4 flex flex-col gap-2">
-                    <p className="text-lg font-semibold flex gap-1">
-                      <img src="/icons/aiGenerated.png" alt="" className="w-[20px] h-[20px]"/>
-                      Report Summary
-                    </p>
-                    <p>{cleanTextForDisplay(reportSummary)}</p>
-                  </div>
+                <div className="flex flex-col gap-2 p-4">
+                  <p className="flex gap-1 text-lg font-semibold">
+                    <img
+                      src="/icons/aiGenerated.png"
+                      alt=""
+                      className="h-[20px] w-[20px]"
+                    />
+                    Report Summary
+                  </p>
+                  <p>{cleanTextForDisplay(reportSummary)}</p>
+                </div>
               </ModalBody>
               <ModalFooter>
                 <div className="flex w-full justify-end gap-2">
-                 
                   <Button onClick={copyToClipboard}>
-                  <img src="/images/copyLink.png" alt="copyLink" className="w-4 h-4 mr-1"/>
+                    <img
+                      src="/images/copyLink.png"
+                      alt="copyLink"
+                      className="mr-1 h-4 w-4"
+                    />
                     Copy Link
                   </Button>
-                  <Button color="primary" onClick={
-                    () => window.open(reportPDFLink, "_blank")
-                  }>
-            <span className="text-3xl">↗️</span>
+                  <Button
+                    color="primary"
+                    onClick={() => window.open(reportPDFLink, "_blank")}
+                  >
+                    <span className="text-3xl">↗️</span>
                     Open Report
                   </Button>
                 </div>
