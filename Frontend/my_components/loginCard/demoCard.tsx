@@ -25,6 +25,9 @@ function DemoCard() {
                 variant="bordered"
                 radius="md"
                 size="sm"
+                onClick={() => {
+                    window.open('/', '_blank');
+                }}
                 >Read</Button> 
             </div>
         </div>
