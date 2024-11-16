@@ -500,6 +500,39 @@ const getCharts = asyncHandler(async (req, res) => {
   }
 });
 
+const removeChart = asyncHandler(async (req, res) => {
+  try {
+    let { chartId, patientId } = req.body;
+    if(!req.user.isDoctor){
+      patientId = req.user.patientDetails._id;
+    }
+    const patient = await Patient.findById(patientId);
+    if (!patient) {
+      throw new ApiError(404, "Patient not found");
+    }
+    let index = -1;
+    let i = 0;
+    for (const chart of patient.chartsList) {
+      if (chart._id.toString() === chartId) {
+        index = i;
+        break;
+      }
+      i++;
+    }
+    if (index > -1) {
+      patient.chartsList.splice(index, 1);
+      await patient.save();
+    }
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, patient.chartsList, "Chart removed successfully")
+      );
+  } catch (error) {
+    throw new ApiError(500, "Something went wrong in removeChart");
+  }
+});
+
 export {
   getDoctorList,
   addDoctor,
@@ -513,5 +546,6 @@ export {
   acceptChart,
   addChatReport,
   patientChat,
-  getCharts
+  getCharts,
+  removeChart
 };

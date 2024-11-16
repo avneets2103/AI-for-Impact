@@ -23,6 +23,7 @@ import { PatientData } from "@/Data/PatientData";
 interface Props {
   searchVitals: string;
   setSearchVitals: React.Dispatch<React.SetStateAction<string>>;
+  setHealthGraphs: React.Dispatch<React.SetStateAction<GraphSchema[]>>;
 }
 
 function VitalsTop(props: Props) {
@@ -36,7 +37,7 @@ function VitalsTop(props: Props) {
     unit: "",
     queryText: "",
   });
-  const { searchVitals, setSearchVitals } = props;
+  const { searchVitals, setSearchVitals, setHealthGraphs } = props;
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [loading, setLoading] = useState(false);
   const [prompt, setPrompt] = useState("");
@@ -159,7 +160,9 @@ function VitalsTop(props: Props) {
                                 const val = dat[i].value;
                                 let st = "";
                                 for (let j = 0; j < val.length; j++) {
-                                  if(val[j] === " "){break;}
+                                  if (val[j] === " ") {
+                                    break;
+                                  }
                                   st += val[j];
                                 }
                                 nD.push({
@@ -225,81 +228,95 @@ function VitalsTop(props: Props) {
                   <div className="flex gap-2">
                     {chartGenerated && (
                       <>
-                      <Button
-                      color="primary"
-                      variant="flat"
-                      onPress={async () => {
-                        try {
-                          setLoading(true);
-                          const response = await axios.post(
-                            `${BACKEND_URI}/patient/queryDateVal`,
-                            {
-                              queryText: prompt,
-                            },
-                          );
-                          let nD = [];
-                          const dat = response.data.data.list;
-                          for (let i = 0; i < dat.length; i++) {
-                            const val = dat[i].value;
-                            let st = "";
-                            for (let j = 0; j < val.length; j++) {
-                              if(val[j] === " "){break;}
-                              st += val[j];
+                        <Button
+                          color="primary"
+                          variant="flat"
+                          onPress={async () => {
+                            try {
+                              setLoading(true);
+                              const response = await axios.post(
+                                `${BACKEND_URI}/patient/queryDateVal`,
+                                {
+                                  queryText: prompt,
+                                },
+                              );
+                              let nD = [];
+                              const dat = response.data.data.list;
+                              for (let i = 0; i < dat.length; i++) {
+                                const val = dat[i].value;
+                                let st = "";
+                                for (let j = 0; j < val.length; j++) {
+                                  if (val[j] === " ") {
+                                    break;
+                                  }
+                                  st += val[j];
+                                }
+                                if(st===""){continue;}
+                                nD.push({
+                                  date: dat[i].date,
+                                  value: Number(st),
+                                });
+                              }
+                              setNewChart({
+                                name: response.data.data.title,
+                                id: response.data.data.id,
+                                description: response.data.data.description,
+                                data: nD,
+                                sourceList: response.data.data.sourceList,
+                                unit: response.data.data.unit,
+                                queryText: prompt,
+                              });
+                              setChartGenerated(true);
+                            } catch (e) {
+                              ToastErrors("Add Report Failed");
+                            } finally {
+                              setLoading(false);
                             }
-                            nD.push({
-                              date: dat[i].date,
-                              value: Number(st),
-                            });
-                          }
-                          setNewChart({
-                            name: response.data.data.title,
-                            id: response.data.data.id,
-                            description: response.data.data.description,
-                            data: nD,
-                            sourceList: response.data.data.sourceList,
-                            unit: response.data.data.unit,
-                            queryText: prompt,
-                          });
-                          setChartGenerated(true);
-                        } catch (e) {
-                          ToastErrors("Add Report Failed");
-                        } finally {
-                          setLoading(false);
-                        }
-                      }}
-                    >
-                      {chartGenerated ? "Regenerate" : "Generate"} ✨
-                    </Button>
-                      <Button
-                        className="mx-auto bg-primaryColor text-white"
-                        variant="flat"
-                        onPress={async () => {
-                          try {
-                            setLoading(true);
-                            const response = await axios.post(
-                              `${BACKEND_URI}/patient/acceptChart`,
-                              {
-                                patientId: "",
-                                chartName: newChart.name,
-                                data: newChart.data,
-                                queryText: newChart.queryText,
-                                description: newChart.description,
-                                sourceList: newChart.sourceList,
-                                unit: newChart.unit
-                              },
-                            );
-                            setChartGenerated(false);
-                            setPrompt("");
-                            ToastInfo("Chart Added Successfully");
-                          } catch (e) {
-                            ToastErrors("Add Report Failed");
-                          } finally {
-                            setLoading(false);
-                          }
-                        }}
-                      >
-                        Save
-                      </Button>
+                          }}
+                        >
+                          {chartGenerated ? "Regenerate" : "Generate"} ✨
+                        </Button>
+                        <Button
+                          className="mx-auto bg-primaryColor text-white"
+                          variant="flat"
+                          onPress={async () => {
+                            try {
+                              setLoading(true);
+                              const response = await axios.post(
+                                `${BACKEND_URI}/patient/acceptChart`,
+                                {
+                                  patientId: "",
+                                  chartName: newChart.name,
+                                  data: newChart.data,
+                                  queryText: newChart.queryText,
+                                  description: newChart.description,
+                                  sourceList: newChart.sourceList,
+                                  unit: newChart.unit,
+                                },
+                              );
+                              const getGraphs = async () => {
+                                try {
+                                  const response = await axios.post(
+                                    `${BACKEND_URI}/patient/getCharts`,
+                                  );
+                                  setHealthGraphs(response.data.data);
+                                } catch (error) {
+                                  console.log(error);
+                                }
+                              };
+                              getGraphs();
+                              setChartGenerated(false);
+                              setPrompt("");
+                              ToastInfo("Chart Added Successfully");
+                            } catch (e) {
+                              ToastErrors("Add Chart Failed");
+                            } finally {
+                              setLoading(false);
+                            }
+                          }}
+                        >
+                          Save
+                        </Button>
                       </>
                     )}
                   </div>

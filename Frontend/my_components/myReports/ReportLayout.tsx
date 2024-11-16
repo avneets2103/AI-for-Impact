@@ -126,7 +126,8 @@ export const ReportLayoutItem = ({
                     color="primary"
                     onClick={() => window.open(reportPDFLink, "_blank")}
                   >
-                    <span className="text-3xl">↗️</span>
+                    {/* <span className="text-3xl">↗️</span> */}
+                    <Image src="/icons/linkArrow.png" alt="openReport" width={15} height={15} />
                     Open Report
                   </Button>
                 </div>

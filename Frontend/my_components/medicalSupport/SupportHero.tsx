@@ -52,16 +52,9 @@ function SupportHero() {
         context: context,
       });
       console.log("Data success!");
-      
-      // console.log("Response from server: ", res.data);
-      
-      // Update context with the new context from response
       setContext(res.data.data.newContext);
 
-      // Create the new message object for the bot response
       const newMessage2: Message = { text: formatTextAsHTML(res.data.data.response), sender: "not_user" };
-
-      // Add bot response to the conversation without overwriting
       setConversation((prev) => [...prev, newMessage2]);
     } catch (error) {
       console.error("Error sending messages:", error);

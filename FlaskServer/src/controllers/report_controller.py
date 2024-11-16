@@ -10,21 +10,20 @@ import json
 
 load_dotenv()
 
-genai.configure(api_key=os.getenv("GENAI_API_KEY"))
-generation_config = {
-  "temperature": 1,
-  "top_p": 0.95,
-  "top_k": 40,
-  "max_output_tokens": 2000,
-  "response_mime_type": "text/plain",
-}
-model = genai.GenerativeModel(
-  model_name="gemini-1.5-flash",
-  generation_config=generation_config,
-)
-
 # Update knowledge base endpoint
 def update_kb():
+    genai.configure(api_key=os.getenv("GENAI_API_KEY"))
+    generation_config = {
+    "temperature": 1,
+    "top_p": 0.95,
+    "top_k": 40,
+    "max_output_tokens": 2000,
+    "response_mime_type": "text/plain",
+    }
+    model = genai.GenerativeModel(
+    model_name="gemini-1.5-flash",
+    generation_config=generation_config,
+    )
     chat_session = model.start_chat(
         history=[
         ]
@@ -137,6 +136,18 @@ def embed_report():
     return jsonify({"message": "Report embedded and stored successfully"}), 201
 
 def generalReportQuery(request):
+    genai.configure(api_key=os.getenv("GENAI_API_KEY"))
+    generation_config = {
+    "temperature": 1,
+    "top_p": 0.95,
+    "top_k": 40,
+    "max_output_tokens": 2000,
+    "response_mime_type": "text/plain",
+    }
+    model = genai.GenerativeModel(
+    model_name="gemini-1.5-flash",
+    generation_config=generation_config,
+    )
     chat_session = model.start_chat(
         history=[
         ]
@@ -175,7 +186,19 @@ def generalReportQuery(request):
     }, 201
 
 def dateValQuery():
-    chat_session = model.start_chat(
+    genai.configure(api_key=os.getenv("GENAI_API_KEY"))
+    generation_config2 = {
+    "temperature": 1,
+    "top_p": 0.95,
+    "top_k": 40,
+    "max_output_tokens": 2000,
+    "response_mime_type": "application/json",
+    }
+    modelJSON = genai.GenerativeModel(
+    model_name="gemini-1.5-flash",
+    generation_config=generation_config2,
+    )
+    chat_session2 = modelJSON.start_chat(
         history=[
         ]
     )
@@ -184,9 +207,6 @@ def dateValQuery():
     index = pc.Index(index_name)
     queryText = data.get("queryText")
     patientId = data.get("patientId")
-
-    queryTextStandardized = chat_session.send_message(queryText + " .This is the user's query, just pick the important part required to search in the medical database of reports of the patient. Eg: 'What was the blood pressure of the patient in the last 5 years?' to 'Blood Pressure in past 5 years'")
-    queryText = queryTextStandardized.text
 
     # convert query text to embeddings
     queryEmbeddings = get_embeddings(queryText, tokenizer2, model2).squeeze().tolist()
@@ -207,64 +227,25 @@ def dateValQuery():
         searchText += result.metadata['reportText']
         sourcesList.append(result.metadata['reportLink'])
 
-    response = chat_session.send_message(searchText + 'From the above text, find key value pairs for the query in type date=>value. Keep the format fixed like this example: {"date=>value": ["2023-11-12=>142", "2024-11-03=>156"], "unit": "mg/dL", "description": "Haeomoglobin concentration level in the blood measured in mg/dL", "title":"Haemoglobin concentration"}. Make sure the date val pairs are in order by chronoloical order of the dates, Very IMPORTANT' + queryText)
-    try:
-        # Ensure response is a valid JSON string
-        response_data = json.loads(response.text.strip("```json")) 
-    except json.JSONDecodeError as e:
-        print("Error decoding JSON:", e)
-        return {
-            "message": "Failed to parse response",
-            "error": str(e),
-        }, 400
+    response = chat_session2.send_message(searchText + 'From the above text, find key value pairs for the query in type date=>value. Keep the format fixed like this example: {"date=>value": ["2023-11-12=>142", "2024-11-03=>156"], "unit": "mg/dL", "description": "Haeomoglobin concentration level in the blood measured in mg/dL", "title":"Haemoglobin concentration"}. Make sure the date val pairs are in order by chronoloical order of the dates, Very IMPORTANT' + queryText)
+    raw_text = response._result.candidates[0].content.parts[0].text
+    parsed_response = json.loads(raw_text.strip())
 
-    # Extract date-value pairs
-    date_value_pairs = response_data.get("date=>value", [])
+    date_value_pairs = parsed_response.get("date=>value", [])
+    unit = parsed_response.get("unit")
+    description = parsed_response.get("description")
+    title = parsed_response.get("title")
     formatted_list = []
     for pair in date_value_pairs:
+        print(pair)
         date, value = pair.split("=>")
         formatted_list.append({"date": date.strip(), "value": value.strip()})
 
     return {
         "message": "Query executed successfully",
         "list": formatted_list,
-        "unit": response_data.get("unit"),
+        "unit": unit,
         "sources": sourcesList,
-        "description": response_data.get("description"),
-        "title": response_data.get("title"),
+        "description": description,
+        "title": title,
     }, 201
-
-# # # Load tokenizer and model
-# tokenizer = AutoTokenizer.from_pretrained("whaleloops/longt5-tglobal-large-16384-pubmed-10k_steps")
-# model = AutoModelForSeq2SeqLM.from_pretrained("whaleloops/longt5-tglobal-large-16384-pubmed-10k_steps")
-
-# Function to summarize a single chunk
-# def chunkSummary(chunk):
-#     summary_ids = model.generate(
-#         chunk,
-#         max_length=1024,
-#         min_length=100,
-#         length_penalty=1,
-#         num_beams=4,
-#         early_stopping=True
-#     )
-#     return tokenizer.decode(summary_ids[0], skip_special_tokens=True)
-
-# Recursive summarization for long text
-# def summarize_text(text):
-#     # Tokenize text
-#     tokens = tokenizer.encode(text, return_tensors="pt", truncation=False)
-    
-#     # Split tokens into chunks of max 16384 tokens
-#     token_chunks = tokens.split(16384, dim=1)
-    
-#     # Summarize each chunk and concatenate summaries
-#     summary_text = ""
-#     for chunk in token_chunks:
-#         summary_text += chunkSummary(chunk)
-    
-#     # If there's more than one chunk, recursively summarize again
-#     if len(token_chunks) > 1:
-#         return summarize_text(summary_text)  # Recursive call for a concise summary
-    
-#     return summary_text

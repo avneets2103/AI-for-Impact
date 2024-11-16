@@ -47,7 +47,7 @@ function ReportTop(props: Props) {
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(queryResponseText);
-      ToastInfo("Report Link Copied");
+      ToastInfo("Text Copied");
     } catch (err) {
       console.error("Failed to copy the text to clipboard", err);
     }
@@ -327,12 +327,11 @@ function ReportTop(props: Props) {
                                     className="h-[20px] w-[20px]"
                                   />
                                 </Button>
-                                <Button isIconOnly className="left-0 top-0">
+                                <Button isIconOnly className="left-0 top-0" onClick={copyToClipboard}>
                                   <img
                                     src="/icons/copy.png"
                                     alt=""
                                     className="h-[15px] w-[15px]"
-                                    onClick={copyToClipboard}
                                   />
                                 </Button>
                               </div>

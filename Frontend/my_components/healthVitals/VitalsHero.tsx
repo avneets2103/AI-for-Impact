@@ -5,9 +5,10 @@ import { VitalsLayout, VitalsLayoutItem } from "./VitalsLayout";
 interface Props {
   data: GraphSchema[];
   searchVitals: string;
+  setHealthGraphs: React.Dispatch<React.SetStateAction<GraphSchema[]>>
 }
 
-function VitalsHero({ data, searchVitals }: Props) {
+function VitalsHero({ data, searchVitals, setHealthGraphs }: Props) {
   const filteredData = data.filter((doc: GraphSchema) => {
     const lowerCaseSearchDoc = searchVitals.toLowerCase();
     return (
@@ -29,6 +30,7 @@ function VitalsHero({ data, searchVitals }: Props) {
             unit={unit}
             sourceList={sourceList}
             queryText={queryText}
+            setHealthGraphs={setHealthGraphs}
           />
         ),
       )}

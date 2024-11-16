@@ -49,8 +49,8 @@ function VitalsMain() {
 
     return (
         <div className='flex-grow flex flex-col width-full h-full mr-6'>
-            <VitalsTop searchVitals={searchVitals} setSearchVitals={setSearchVitals}/>
-            <VitalsHero searchVitals={searchVitals} data={HealthGraphs}/>
+            <VitalsTop searchVitals={searchVitals} setSearchVitals={setSearchVitals} setHealthGraphs={setHealthGraphs}/>
+            <VitalsHero searchVitals={searchVitals} data={HealthGraphs} setHealthGraphs={setHealthGraphs}/>
         </div>
     )
 }
