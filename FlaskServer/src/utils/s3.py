@@ -39,7 +39,3 @@ def put_object_url(file_name, file_type, expiry_time):
     except ClientError as e:
         print("Error generating presigned URL:", e)
         return None
-
-# Example usage:
-# print(get_object_url('your-file-key'))
-# print(put_object_url('your-file-name', 'image/jpeg', 3600))

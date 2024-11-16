@@ -38,7 +38,7 @@ const DocViewLayoutItem = ({
   return (
     <div
       className={cn(
-        "group/bento row-span-1 flex cursor-pointer flex-col justify-between space-y-4 overflow-clip rounded-xl border border-transparent bg-white p-0 shadow-input",
+        "group/bento row-span-1 flex cursor-pointer flex-col justify-between space-y-4 overflow-clip rounded-xl bg-white p-0 shadow-input",
       )}
       onClick={
         ()=>{

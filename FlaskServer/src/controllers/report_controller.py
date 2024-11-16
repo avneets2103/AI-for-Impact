@@ -237,7 +237,6 @@ def dateValQuery():
     title = parsed_response.get("title")
     formatted_list = []
     for pair in date_value_pairs:
-        print(pair)
         date, value = pair.split("=>")
         formatted_list.append({"date": date.strip(), "value": value.strip()})
 

@@ -224,7 +224,7 @@ function ReportTop(props: Props) {
                     </p>
                   )}
                 </ModalHeader>
-                <ModalBody className="max-h-[60vh] overflow-y-scroll">
+                <ModalBody className="max-h-[60vh] overflow-y-auto">
                   {loading ? (
                     <div className="flex h-full w-full items-center justify-center">
                       <CircularProgress

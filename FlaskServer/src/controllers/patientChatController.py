@@ -29,12 +29,10 @@ pc = Pinecone(api_key=api_key)
 index = pc.Index(index_name)
 
 def get_embeddings(text, tokenizer, model):
-    print(text)
     # Tokenize the text
     inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
     with torch.no_grad():
         outputs = model(**inputs)
-    # print(outputs)
     return outputs.last_hidden_state.mean(dim=1)
 
 def getRelevant(data):
@@ -59,7 +57,6 @@ def getRelevant(data):
     for result in results.matches:
         searchText += result.metadata['reportText']
         sourcesList.append(result.metadata['reportLink'])
-        print(result)
 
     return searchText
 

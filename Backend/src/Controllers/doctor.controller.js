@@ -107,6 +107,7 @@ const getPatientMedical = asyncHandler(async (req, res) => {
         let newChartsList = [];
         for (const chart of chartsList) {
             const newChart = {
+                id: chart._id,
                 name: chart.chartName,
                 data: chart.data,
                 description: chart.description,

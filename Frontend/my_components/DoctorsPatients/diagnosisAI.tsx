@@ -22,12 +22,6 @@ function DiagnosisAI({id}: Props) {
   const [conversation, setConversation] = useState<Message[]>([
     { text: "Hey, how can I help you?", sender: "not_user" },
   ]);
-
-  const cleanTextForDisplay = (text:string) => {
-    return text
-      .replace(/\*\*(.*?)\*\*/g, '$1')  // Remove **bold** markers
-      .replace(/\n+/g, ' ');  // Replace newlines with a single space
-  };
   const formatTextAsHTML = (text: string): string => {
     return text
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')   // Convert **text** to <strong>text</strong>
@@ -68,7 +62,6 @@ function DiagnosisAI({id}: Props) {
         context: context,
         patientId: id
       });
-      console.log("Response from server: ", res.data);
       
       // Update context with the new context from response
       setContext(res.data.newContext);
@@ -109,7 +102,7 @@ function DiagnosisAI({id}: Props) {
     <div className="flex flex-col justify-between bg-color1 m-0 p-0 h-full">
       <div
         ref={chatBodyRef}
-        className="flex h-[40rem] my-2 flex-col overflow-y-scroll p-[15px] text-textColorDark"
+        className="flex h-[70vh] max-h-[70vh] my-2 flex-col overflow-y-scroll p-[15px] text-textColorDark"
       >
         {conversation.map((message, index) => (
           <div
@@ -135,7 +128,7 @@ function DiagnosisAI({id}: Props) {
         )}
 
       </div>
-      <div className="flex flex-col sticky bottom-0 bg-white items-center p-[10px] -pb-[10px] pr-0">
+      <div className="flex flex-col bg-white items-center p-[10px] -pb-[10px] pr-0">
         <div className="w-[100%] p-1 flex flex-row justify-between items-center px-1">
 
           <Input
@@ -144,12 +137,16 @@ function DiagnosisAI({id}: Props) {
             type="text"
             placeholder={waitForRes?"Waiting for response...":"Type a message..."}
             value={inputText}
-            className="bg-lowContrastColor @onFocus:border-primaryColor mr-[10px] w-[97%] rounded-[20px] border-[1px] text-black text-textColorDark"
+            className="mr-4"
             onChange={(e) => setInputText(e.target.value)}
             onKeyDown={handleEnter}
           />
           <button
-            className="sn-send-button h-10 w-10"
+            className={
+              waitForRes
+                ? "bg-warning text-white h-10 w-10 rounded-full"
+                : "bg-primaryColor text-white h-10 w-10 rounded-full"
+            }
             onClick={handleSendMessage}
           >
             {waitForRes ? "◼" : "➤"}

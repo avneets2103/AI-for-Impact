@@ -51,7 +51,6 @@ function SupportHero() {
         prompt: inputText,
         context: context,
       });
-      console.log("Data success!");
       setContext(res.data.data.newContext);
 
       const newMessage2: Message = { text: formatTextAsHTML(res.data.data.response), sender: "not_user" };

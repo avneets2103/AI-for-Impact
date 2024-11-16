@@ -29,12 +29,10 @@ pc = Pinecone(api_key=api_key)
 index = pc.Index(index_name)
 
 def get_embeddings(text, tokenizer, model):
-    print(text)
     # Tokenize the text
     inputs = tokenizer(text, return_tensors="pt", truncation=True, max_length=512, padding=True)
     with torch.no_grad():
         outputs = model(**inputs)
-    # print(outputs)
     return outputs.last_hidden_state.mean(dim=1)
 
 def getRelevant(data):
@@ -59,7 +57,6 @@ def getRelevant(data):
     for result in results.matches:
         searchText += result.metadata['reportText']
         sourcesList.append(result.metadata['reportLink'])
-        print(result)
 
     return searchText
 
@@ -76,17 +73,14 @@ def chatController():
         ]
     )
     data = request.get_json() # get user data (Post request )
-    print(data) 
     prompt = data.get('prompt') #change namespace
     relevant = getRelevant(data) # get embeddings 
     context = data.get('context') # get context
 
     # Send the prompt to the chat session
     response = chat_session.send_message("Act like a Differential Medical Diagnosis tool. The existing context of the patient is: "+context + "I want your expert opinion on: " +prompt + "Use proper medical terms, as if you're talking to expert medical practiotioner. The existing data that is relevant to my promt for the patient is as follows:" + relevant )
-    print(response.text)
 
     newContext = chat_session.send_message("Make a new context from the sum of new response that conserves all the major data: "+response.text+" and the current context: "+context+" . Only reply with plain text only.")
-    print(newContext.text)
     
     return {
         "message": "Chat executed successfully",

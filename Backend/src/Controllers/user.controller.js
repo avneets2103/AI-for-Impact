@@ -141,7 +141,6 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         )
 
         const user = await User.findById(decodedRefreshToken?._id)
-        console.log(user)
         if (!user) {
             throw new ApiError(
                 401,
@@ -531,7 +530,6 @@ const profilePhotoUploadSignedURL = asyncHandler(async (req, res) => {
         const url = await putObjectURL(nameOfFile, imageType, 600);
         user.imageLink = nameOfFile;
         await user.save();
-        console.log(user);
 
         if(user.isDoctor){
             const userDoctorDetails = await Doctor.findById(user.doctorDetails);

@@ -12,7 +12,7 @@ function VitalsHero({ data, searchVitals, setHealthGraphs }: Props) {
   const filteredData = data.filter((doc: GraphSchema) => {
     const lowerCaseSearchDoc = searchVitals.toLowerCase();
     return (
-      doc.name.toLowerCase().includes(lowerCaseSearchDoc)
+      doc?.name?.toLowerCase().includes(lowerCaseSearchDoc)
     );
   });
   return (

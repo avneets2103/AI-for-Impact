@@ -382,7 +382,6 @@ const queryDateVal = asyncHandler(async (req, res) => {
     if (!patient) {
       throw new ApiError(404, "Patient not found");
     }
-
     const queryRes = await axios.post(`${process.env.FLASK_SERVER}/reports/dateValQuery`, {
       patientId,
       queryText,
@@ -400,10 +399,11 @@ const queryDateVal = asyncHandler(async (req, res) => {
 const acceptChart = asyncHandler(async (req, res) => {
   try {
     let {patientId, chartName, data, queryText, description, sourceList, unit} = req.body;
-    console.log(req.user);
     if(!req.user.isDoctor){
       patientId = req.user.patientDetails._id.toString();
-      console.log(patientId);
+    }
+    if(!chartName || !data || !queryText || !description){
+      throw new ApiError(400, "Missing required fields");
     }
     const patient = await Patient.findById(patientId);
     if (!patient) {
@@ -521,6 +521,9 @@ const removeChart = asyncHandler(async (req, res) => {
     }
     if (index > -1) {
       patient.chartsList.splice(index, 1);
+      patient.chartsList = patient.chartsList.filter((chart) => {
+        return chart && chart.chartName && chart.queryText;
+      });
       await patient.save();
     }
     return res

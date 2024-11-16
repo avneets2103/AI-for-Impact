@@ -1,8 +1,13 @@
-import { GraphSchema } from "@/Interfaces";
+import { GraphSchema, PatientDataSchema } from "@/Interfaces";
 import { cn } from "@/lib/utils";
 import LineChart from "@/my_components/Charts/charts";
 import { Button, Modal, ModalBody, ModalContent, ModalFooter, useDisclosure } from "@nextui-org/react";
+import axios from "@/utils/axios";
 import { useEffect, useState } from "react";
+import { BACKEND_URI } from "@/CONSTANTS";
+import { ToastErrors, ToastInfo } from "@/Helpers/toastError";
+import { PatientData } from "@/Data/PatientData";
+import { getPatientMedical } from "@/Helpers/apiCalls";
 
 export const DoctorVitalsLayout = ({
   className,
@@ -30,8 +35,22 @@ export const DoctorVitalsLayoutItem = ({
   description,
   unit,
   sourceList,
-  queryText
-}: GraphSchema) => {
+  queryText,
+  setPatientData,
+  setDoctorNotes,
+  patientId
+}: {
+  id: string;
+  name: string;
+  data: { date: string; value: number }[];
+  description: string;
+  unit: string;
+  sourceList: string[];
+  queryText: string;
+  setPatientData: React.Dispatch<React.SetStateAction<PatientDataSchema>>;
+  patientId: string;
+  setDoctorNotes: React.Dispatch<React.SetStateAction<string>>;
+}) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [labels, setLabels] = useState<string[]>([]); // X-axis dates
   const [Data, setData] = useState<number[]>([]); // Y-axis parameter values
@@ -96,6 +115,21 @@ export const DoctorVitalsLayoutItem = ({
                   <Button
                     className="mx-auto text-primaryColor"
                     variant="flat"
+                    onClick={async () => {
+                      try {
+                        const response = await axios.post(
+                          `${BACKEND_URI}/patient/removeChart`,
+                          {
+                            chartId: id,
+                            patientId: patientId,
+                          },
+                        );
+                        getPatientMedical(patientId, setPatientData, setDoctorNotes);
+                        ToastInfo("Chart Removed Successfully");
+                      } catch (error) {
+                        ToastErrors("Remove Chart Failed");
+                      }
+                    }}
                   >
                     Remove Chart
                   </Button>
