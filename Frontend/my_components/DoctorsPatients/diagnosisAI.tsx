@@ -128,7 +128,7 @@ function DiagnosisAI({id}: Props) {
         )}
 
       </div>
-      <div className="flex flex-col bg-white items-center p-[10px] -pb-[10px] pr-0">
+      <div className="flex flex-col items-center p-[10px] -pb-[10px] pr-0">
         <div className="w-[100%] p-1 flex flex-row justify-between items-center px-1">
 
           <Input
