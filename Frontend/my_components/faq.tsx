@@ -20,7 +20,7 @@ const QuestionList: React.FC<{ questions: QuestionProps[] }> = ({ questions }) =
           {/* Question Button */}
           <button
             onClick={() => toggleQuestion(index)}
-            className="w-full text-left py-4 px-6 font-medium text-gray-800 bg-white focus:outline-none transition duration-300"
+            className="w-full text-left py-4 px-6 font-medium text-gray-800 dark:text-gray-200 bg-white dark:bg-black focus:outline-none transition duration-300"
           >
             {item.question}
           </button>

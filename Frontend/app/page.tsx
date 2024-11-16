@@ -119,7 +119,7 @@ export default function Home() {
               <TryButton
                 link="/login"
                 type="faded"
-                classN="w-[3rem] text-[#3730e2]"
+                classN="w-[3rem]"
                 text="Try"
               />
               <TryButton
