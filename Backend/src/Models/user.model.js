@@ -35,6 +35,13 @@ const userSchema = new mongoose.Schema(
         },
         imageLink: {
             type: String,
+        },
+        otp: {
+            type: String,
+        },
+        otpExpiry: {
+            type: Date,
+            default: Date.now(Date.now()+6000*5) 
         }
     },
     { timestamps: true }

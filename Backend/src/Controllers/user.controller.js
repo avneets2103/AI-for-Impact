@@ -3,7 +3,6 @@ import ApiError from '../Utils/ApiError.js'
 import ApiResponse from '../Utils/ApiResponse.js'
 import { User } from '../Models/user.model.js'
 import jwt from 'jsonwebtoken'
-import {sendingMail} from '../Utils/messagingService.js'
 import speakeasy from 'speakeasy';
 import { randomString, generateOTP, makeUniqueFileName } from '../Utils/helpers.js'
 let otpExpiry = 0;
@@ -11,6 +10,7 @@ import {emailOTP, emailNewPassword} from '../constants.js'
 import { Patient } from '../Models/patient.model.js'
 import { Doctor } from '../Models/doctor.model.js'
 import { getObjectURL, putObjectURL } from '../Utils/s3.js'
+import {sendingMail} from '../Utils/messagingService.js'
 
 const generateAccessAndRefreshToken = async (userId) => {
     try {
@@ -41,18 +41,23 @@ const registerLoginUser = asyncHandler(async (req, res) => {
         const exsistingUser = await User.findOne({
             $or: [{ email }],
         })
-        
-        // otp creation
-        const secretBase32 = process.env.otp_secret_key;  
-        let otp = generateOTP(secretBase32);
-        otpExpiry = Date.now() + (6000*5);
+
+        // otp creation 
+        let otp = "";
+        for(let i = 0; i < 4; i++){
+            otp += (Math.floor(Math.random() * 10)).toString();
+        }
 
         if (exsistingUser) {
             const passValid = await exsistingUser.isPasswordCorrect(password)
             if (!passValid) {
                 throw new ApiError(401, 'Unauthorized access')
             }
-            sendingMail(exsistingUser.email, 'OTP', 'Welcome!', emailOTP(otp));
+
+            exsistingUser.otp = otp;
+            exsistingUser.otpExpiry = Date.now() + (6000*5);
+            await exsistingUser.save({ validateBeforeSave: false })
+            await sendingMail(exsistingUser.email, 'OTP', 'Welcome!', emailOTP(otp));
             
             const sendingUser = await User.findById(exsistingUser._id).select("-password -refreshToken");
             return res
@@ -72,6 +77,8 @@ const registerLoginUser = asyncHandler(async (req, res) => {
             const user = await User.create({
                 password: password,
                 email: email,
+                otp: otp,
+                otpExpiry: Date.now() + (6000*5)
             })
             
             const check = await User.findById(user._id).select(
@@ -82,7 +89,7 @@ const registerLoginUser = asyncHandler(async (req, res) => {
                 throw new ApiError(500, 'User not saved')
             }
 
-            sendingMail(check.email, 'OTP', 'Welcome!', emailOTP(otp));
+            await sendingMail(check.email, 'OTP', 'Welcome!', emailOTP(otp));
 
             return res
                 .status(200)
@@ -226,28 +233,6 @@ const verifyOTP = asyncHandler(async (req, res) => {
         if (email.trim().length == 0 || enteredOTP.trim().length == 0) {
             throw new ApiError(400, 'OTP or email not sent')
         }
-        
-        const secretBase32 = process.env.otp_secret_key
-        if (Date.now() > otpExpiry) {
-            return res
-            .status(400)
-            .json(
-                new ApiResponse(
-                    400,
-                    null,
-                    `OTP expired, request a new one`
-                )
-            )
-        }
-
-        // Check if OTP matches
-        const isValid = speakeasy.totp.verify({
-            secret: secretBase32,
-            digits: 4,
-            token: enteredOTP,
-            step: 60,
-            window: 5 // Change the window to 1 to allow 30 seconds before and after the current time
-        });
 
         const user = await User.findOne({
             $or: [{ email }],
@@ -256,8 +241,11 @@ const verifyOTP = asyncHandler(async (req, res) => {
             throw new ApiError(400, 'User not found');
         }
 
-        if (isValid) {
-            const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id)
+        if(user.otp !== enteredOTP || Date.now() > user.otpExpiry) {
+            throw new ApiError(400, 'Invalid OTP')
+        }   
+
+        const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id)
             const loggedInUser = await User.findById(user._id)
             const options = {
                 httpOnly: true,
@@ -275,10 +263,6 @@ const verifyOTP = asyncHandler(async (req, res) => {
                         'User logged in successfully'
                     )
         )
-        }
-        else {
-            throw new ApiError(400, 'Invalid OTP')
-        }
     } catch (error) {
         throw new ApiError(500, 'OTP verification failed')
     } 
@@ -297,11 +281,15 @@ const resendOTP = asyncHandler(async (req, res) => {
             throw new ApiError(400, 'User not found');
         }
         
-        const secretBase32 = process.env.otp_secret_key;
-        let otp = generateOTP(secretBase32);
-        otpExpiry = Date.now() + (60000*5);
+        let otp = "";
+        for(let i = 0; i < 4; i++){
+            otp += (Math.floor(Math.random() * 10)).toString();
+        }
+        user.otp = otp;
+        user.otpExpiry = Date.now() + (6000*5);
+        await user.save({ validateBeforeSave: false })
         
-        sendingMail(user.email, "OTP", 'Welcome!', emailOTP(otp));
+        await sendingMail(user.email, "OTP", 'Welcome!', emailOTP(otp));
         return res
             .status(200)
             .json(
@@ -337,7 +325,7 @@ const generateNewPassword = asyncHandler(async (req, res) => {
         await exsistingUser.save({ validateBeforeSave: false })
 
         await sendingMail(exsistingUser.email, 'New Password', 'New Password Generated', emailNewPassword(newPassword));
-    
+
         return res
             .status(200)
             .json(new ApiResponse(200, {}, 'Password change success'))
