@@ -132,6 +132,36 @@ const patientSchema = new mongoose.Schema({
             }
         }
     ],
+    medicinesList: [
+        {
+            type: {
+                medicine: {
+                    type: String,
+                    required: true,
+                },
+                dosage: {
+                    type: String,
+                    required: true,
+                },
+                doctor: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'Doctor',
+                    required: true,
+                },
+                status: {
+                    type: String, 
+                    required: true, 
+                    enum: ["taken", "pending"], 
+                },
+            },
+            default: [],
+        }
+    ],
+    medicineStatusDate: {
+        type: Date,
+        default: () => new Date().setHours(0, 0, 0, 0), // Default to the start of the current day
+        set: (value) => new Date(value).setHours(0, 0, 0, 0), // Ensure only the date part is stored
+    },
 }, { timestamps: true });
 
 export const Patient = mongoose.models.Patient || mongoose.model('Patient', patientSchema);

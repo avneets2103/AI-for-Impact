@@ -536,6 +536,127 @@ const removeChart = asyncHandler(async (req, res) => {
   }
 });
 
+const getMedicines = asyncHandler(async (req, res) => {
+  try {
+    let { patientId } = req.body;
+    if (!req.user.isDoctor) {
+      patientId = req.user.patientDetails._id.toString();
+    }
+
+    const patient = await Patient.findById(patientId);
+    if (!patient) {
+      throw new ApiError(404, "Patient not found");
+    }
+
+    const currDate = new Date().setHours(0, 0, 0, 0); // Normalize to local timezone midnight
+
+    // Check if the medicineStatusDate is the same as the current date (local time)
+    const medicineStatusDate = new Date(patient.medicineStatusDate).setHours(0, 0, 0, 0);
+
+    let newMedicinesList = [];
+    
+    // If medicineStatusDate matches the current date, return the medicines with the existing status
+    if (medicineStatusDate === currDate) {
+      for (const medicine of patient.medicinesList) {
+        const doctor = await Doctor.findById(medicine.doctor); // Await doctor name fetch
+        const newMed = {
+          id: medicine._id,
+          medicine: medicine.medicine,
+          dosage: medicine.dosage,
+          doctor: doctor.name,
+          status: medicine.status,
+          doctorId: medicine.doctor,
+        };
+        newMedicinesList.push(newMed);
+      }
+
+      return res.status(200).json(
+        new ApiResponse(
+          200,
+          {
+            medicinesList: newMedicinesList,
+            medicineStatusDate: patient.medicineStatusDate,
+          },
+          "Medicines list retrieved successfully"
+        )
+      );
+    } else {
+      // If dates don't match, set pending status for all medicines
+      const newMedicineList = [];
+      for (const medicine of patient.medicinesList) {
+        const doctor = await Doctor.findById(medicine.doctor); // Await doctor name fetch
+        const newMed = {
+          id: medicine._id,
+          medicine: medicine.medicine,
+          dosage: medicine.dosage,
+          doctor: doctor.name,
+          status: "pending",
+          doctorId: medicine.doctor,
+        };
+        newMedicineList.push(newMed);
+      }
+
+      // Reverse the list if needed
+      newMedicineList.reverse();
+      patient.medicineStatusDate = currDate; // Update the medicine status date
+      await patient.save(); // Save the updated patient data
+
+      return res.status(200).json(
+        new ApiResponse(
+          200,
+          {
+            medicinesList: newMedicineList,
+            medicineStatusDate: patient.medicineStatusDate,
+          },
+          "Medicines list retrieved successfully"
+        )
+      );
+    }
+  } catch (error) {
+    console.error(error); // Log the error for better debugging
+    throw new ApiError(500, "Something went wrong in getMedicines");
+  }
+});
+
+const toggleMedicineStatus = asyncHandler(async (req, res) => {
+  try {
+    const { medicineId, status } = req.body;
+    if(req.user.isDoctor){
+      throw new ApiError(401, "Unauthorized access");
+    }
+    const user = await User.findById(req.user._id).populate("patientDetails");
+    const patient = await Patient.findById(user.patientDetails._id);
+    if (!patient) {
+      throw new ApiError(404, "Patient not found");
+    }
+    console.log(patient.medicinesList)
+    let index = -1;
+    let i = 0;
+    for (const medicine of patient.medicinesList) {
+      if (medicine._id.toString() === medicineId) {
+        index = i;
+        break;
+      }
+      i++;
+    }
+    if (index > -1) {
+      patient.medicinesList[index].status = status;
+      await patient.save();
+    }
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          medicinesList: patient.medicinesList,
+        },
+        "Medicine updated successfully"
+      )
+    );
+  } catch (error) {
+    throw new ApiError(500, "Something went wrong in editMedicine");
+  }
+})
+
 export {
   getDoctorList,
   addDoctor,
@@ -550,5 +671,7 @@ export {
   addChatReport,
   patientChat,
   getCharts,
-  removeChart
+  removeChart,
+  getMedicines,
+  toggleMedicineStatus
 };

@@ -1,14 +1,17 @@
-import TableExample from '@/components/example/Table/table'
+import { Medicine } from '@/Interfaces'
+import TableExample from '@/my_components/Table/table'
 import { Tab } from '@nextui-org/react'
 import React from 'react'
 
-interface Props {}
+interface Props {
+    medicine: Medicine[],
+    setMedicine: React.Dispatch<React.SetStateAction<Medicine[]>>
+}
 
 function MyMedicinesHero(props: Props) {
-    const {} = props
-
+    const {medicine, setMedicine} = props
     return (
-        <TableExample/>
+        <TableExample medicine={medicine} setMedicine={setMedicine}/>
     )
 }
 

@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 import { verifyJWT } from "../Middlewares/auth.middleware.js";
-import { acceptChart, addChatReport, addDoctor, addReport, getDoctorList, getReportList, patientChat, queryDateVal, queryReports, removeDoctor, removeReport, reportAddSignedURL, getCharts, removeChart } from "../Controllers/patient.controller.js";
+import { acceptChart, addChatReport, addDoctor, addReport, getDoctorList, getReportList, patientChat, queryDateVal, queryReports, removeDoctor, removeReport, reportAddSignedURL, getCharts, removeChart, getMedicines, toggleMedicineStatus } from "../Controllers/patient.controller.js";
 
 const router = Router();
 
@@ -20,5 +20,7 @@ router.route("/acceptChart").post(verifyJWT, acceptChart);
 router.route("/chat").post(verifyJWT, patientChat);
 router.route("/getCharts").post(verifyJWT, getCharts);
 router.route("/removeChart").post(verifyJWT, removeChart);
+router.route("/getMedicines").post(verifyJWT, getMedicines);
+router.route("/toggleMedicineStatus").post(verifyJWT, toggleMedicineStatus);
 
 export default router;

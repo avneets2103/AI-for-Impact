@@ -21,9 +21,12 @@ import { PlusIcon } from "./PlusIcon";
 import { VerticalDotsIcon } from "./VerticalDotsIcon";
 import { ChevronDownIcon } from "./ChevronDownIcon";
 import { SearchIcon } from "./SearchIcon";
-import { columns, medicine, statusOptions } from "./data";
+import { columns, statusOptions } from "./data";
 import { capitalize } from "./utils";
-import { Medicine } from "./types";
+import { Medicine } from "@/Interfaces";
+import axios from "@/utils/axios";
+import { BACKEND_URI } from "@/CONSTANTS";
+
 
 const statusColorMap: Record<string, ChipProps["color"]> = {
   taken: "success",
@@ -38,7 +41,13 @@ const INITIAL_VISIBLE_COLUMNS = [
   "actions",
 ];
 
-export default function TableExample() {
+interface Props {
+  medicine: Medicine[];
+  setMedicine: React.Dispatch<React.SetStateAction<Medicine[]>>;
+}
+
+export default function TableExample(props: Props) {
+  const {medicine, setMedicine} = props
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(
     new Set([]),
@@ -219,8 +228,35 @@ export default function TableExample() {
                       : "danger"
                     : "default"
                 }
-                onPress={() => {
+                onPress={async () => {
                   // hit api to update medicine status
+                  await axios.post(`${BACKEND_URI}/patient/toggleMedicineStatus`, {
+                    medicineId: currSelectedMedicine?.id,
+                    status: currSelectedMedicine?.status === "taken" ? "pending" : "taken",
+                  })
+                  const getMedicines = async () => {
+                    try {
+                      const medicineRes = await axios.post(
+                        `${BACKEND_URI}/patient/getMedicines`, {}
+                      );
+                      const medicineList = medicineRes.data.data.medicinesList;
+                      const newMedicineList:Medicine[] = [];
+                      for (const medicine of medicineList) {
+                        const newMed:Medicine = {
+                          id: medicine.id,
+                          medicine: medicine.medicine,
+                          dosage: medicine.dosage,
+                          doctor: medicine.doctor,
+                          status: medicine.status,
+                        };
+                        newMedicineList.push(newMed);
+                      }
+                      setMedicine(newMedicineList);
+                    } catch (error) {
+                      console.log(error);
+                    }
+                  };
+                  getMedicines();
                   setMedicineSelected(false);
                   setCurrSelectedMedicine({
                     id: "",
@@ -229,7 +265,7 @@ export default function TableExample() {
                     doctor: "",
                     status: "taken",
                   })
-                  setSelectedKeys(new Set([]));
+                  setSelectedKeys(new Set([]))
                 }}
               >
                 {medicineSelected

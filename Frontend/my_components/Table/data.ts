@@ -1,4 +1,5 @@
-import { Medicine } from "./types";
+import { Medicine } from "@/Interfaces";
+
 
 const columns = [
   {name: "ID", uid: "id", sortable: true},

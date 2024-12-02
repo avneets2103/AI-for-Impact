@@ -79,6 +79,14 @@ interface PatientDataSchema {
     chartsList: GraphSchema[]
 }
 
+interface Medicine{
+    id: string;
+    medicine: string;
+    dosage: string;
+    doctor: string;
+    status: string;
+}
+
 export type {
     sidebarRTK,
     sidebarMenuItems, 
@@ -88,5 +96,5 @@ export type {
     GraphSchema,
     Message,
     PatientDataSchema,
-    
+    Medicine
 }
