@@ -60,11 +60,12 @@ const removePatient = async(id: string, setPatList: React.Dispatch<React.SetStat
   ToastInfo("Patient removed successfully");
 }
 
-const getUserDetails = async (setName: React.Dispatch<React.SetStateAction<string>>, setEmail: React.Dispatch<React.SetStateAction<string>>, setIsDoc: React.Dispatch<React.SetStateAction<boolean>>, setDoctorDetails: React.Dispatch<React.SetStateAction<any>>, setPatientDetails: React.Dispatch<React.SetStateAction<any>>) => {
+const getUserDetails = async (setName: React.Dispatch<React.SetStateAction<string>>, setEmail: React.Dispatch<React.SetStateAction<string>>, setIsDoc: React.Dispatch<React.SetStateAction<boolean>>, setDoctorDetails: React.Dispatch<React.SetStateAction<any>>, setPatientDetails: React.Dispatch<React.SetStateAction<any>>, setImageLink: React.Dispatch<React.SetStateAction<string>>) => {
   const response = await axios.post(`${BACKEND_URI}/auth/getUserData`);
   setName(response.data.data.name);
   setEmail(response.data.data.email);
   setIsDoc(response.data.data.isDoctor);
+  setImageLink(response.data.data.imageLink);
   if(response.data.data.isDoctor){
     const docDets = {
       qualifications: response.data.data.qualification,

@@ -81,7 +81,7 @@ export const DocLayoutItem = ({
       <div className="w-full h-full relative">
     
       {isLoading && (
-        <div className="h-full w-full bg-gray-300 animate-pulse absolute top-0 left-0 rounded-md"></div>
+        <div className="w-full overflow-clip bg-gray-300 animate-pulse absolute top-0 left-0 rounded-md"></div>
       )}
       {/* Image */}
       <img
@@ -90,7 +90,7 @@ export const DocLayoutItem = ({
         src={img}
         alt="doctor"
         onLoad={handleImageLoad}
-        className={`h-full w-full absolute top-0 left-0 transition-opacity duration-500 ${
+        className={`h-full w-full absolute top-0 left-0 transition-opacity duration-500  ${
           isLoading ? 'opacity-0' : 'opacity-100'
         }`}
       />
@@ -120,7 +120,7 @@ export const DocLayoutItem = ({
                   <Image width={100} height={100}
                     src={img}
                     alt="doctor's image"
-                    className="h-[40px] w-[40px] rounded-[35px]"
+                    className="w-[40px] rounded-[35px] overflow-clip"
                   />
                   <p>{name}</p>
                 </div>

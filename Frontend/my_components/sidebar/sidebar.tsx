@@ -109,7 +109,7 @@ const Sidebar: React.FC = () => {
         console.log("Access token invalid, trying refresh token...");
       }
     };
-    getUserDetails(setName, setEmail, setIsDoc, setDoctorDetails, setPatientDetails);
+    getUserDetails(setName, setEmail, setIsDoc, setDoctorDetails, setPatientDetails, setImageLink);
     checkTokens();
   }, [isMounted, Router]);
 
@@ -233,9 +233,9 @@ const Sidebar: React.FC = () => {
           </div>
           <div className="flex h-[2.8rem] w-[2.8rem] flex-col items-center justify-center rounded-[50%] bg-color1">
             <Image width={100} height={100}
-              src={`/icons/avatar${Number(Cookies.get("avatarNumber")) || 7}.png`}
+              src={imageLink}
               alt={"avatar"}
-              className="w-[95%]"
+              className="w-[95%] rounded-full overflow-clip"
             />
           </div>
         </div>

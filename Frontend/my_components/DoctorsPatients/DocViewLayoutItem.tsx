@@ -48,7 +48,7 @@ const DocViewLayoutItem = ({
       }
     >
       <div className="relative h-full w-full">
-        <Image width={100} height={100} src={img} alt="doctor" className="-z-5 absolute h-full w-full" />
+        <Image width={100} height={100} src={img} alt="doctor" className="-z-5 overflow-clip absolute h-full w-full" />
         <div className="-z-5 absolute flex h-full w-full bg-black opacity-30"></div>
         <div className="absolute z-0 flex h-full w-full flex-col justify-between p-3 text-[whitesmoke]">
           <p>{name.slice(0, Math.min(name.length, 25))}</p>
