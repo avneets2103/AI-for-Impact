@@ -44,6 +44,14 @@ const sidebarMenu:Array<sidebarMenuItems>= [
         patient: true,
     },
     {
+        name: "My Medications",
+        path: "myMedicines",
+        iconS: "/icons/med.s.png",
+        iconNS: "/icons/med.ns.png",
+        iconNSD: "/icons/med.ns.D.png",
+        patient: true,
+    },
+    {
         name: "My Patients",
         path: "myPatients",
         iconS: "/icons/patient.s.png",

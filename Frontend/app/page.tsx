@@ -92,7 +92,7 @@ export default function Home() {
   return (
     <div className="flex flex-col gap-4 p-7 px-10">
       {/* Dock */}
-      <div className="fixed bottom-0 z-20 w-full">
+      <div className="fixed bottom-2 z-20 w-full">
         <FloatingDockDemo />
       </div>
       {/* Main entry */}
@@ -239,7 +239,7 @@ export default function Home() {
         </div>
       </div>
       {/* About Us */}
-      <div
+      {/* <div
         id="aboutUs"
         className="mt-10 flex w-full flex-col items-center px-20"
       >
@@ -252,7 +252,7 @@ export default function Home() {
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           className="h-[70vh] w-3/4"
         ></iframe>
-      </div>
+      </div> */}
       {/* FAQs */}
       <div id="faqs" className="mt-10 flex w-full flex-col items-center px-20">
         <div className="text-[4rem] font-medium">

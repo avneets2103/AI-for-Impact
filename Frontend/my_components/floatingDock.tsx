@@ -45,7 +45,7 @@ export function FloatingDockDemo() {
           className="p-[4px]"
         />
       ),
-      href: "#aboutUs",
+      href: "#faqs",
     },
     {
       title: "Contact Us",

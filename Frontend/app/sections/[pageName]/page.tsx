@@ -16,6 +16,7 @@ import { setCurrentPage } from "@/RTK/features/sidebar";
 import { useRouter } from "next/navigation";
 import VitalsMain from "@/my_components/healthVitals/heathVitals";
 import DoctorsPatient from "@/my_components/DoctorsPatients/DoctorsPatient";
+import MyMedicines from "@/my_components/myMedicines/myMedicines";
 
 function Page({ params }: any) {
   const Router = useRouter();
@@ -36,6 +37,7 @@ function Page({ params }: any) {
         "myReports",
         "healthVitals",
         "medicalSupport",
+        "myMedicines",
         "myPatients",
       ].includes(currentPage)
     ) {
@@ -91,6 +93,7 @@ function Page({ params }: any) {
       {currentPage === "myReports" && <ReportMain />}
       {currentPage === "healthVitals" && <VitalsMain />}
       {currentPage === "medicalSupport" && <SupportMain/>}
+      {currentPage === "myMedicines" && <MyMedicines />}
       {currentPage === "myPatients" && <DoctorsPatient />}
     </div>
   );
