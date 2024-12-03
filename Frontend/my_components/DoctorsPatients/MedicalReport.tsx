@@ -274,6 +274,7 @@ const MedicalReport = ({
                       setPatientData={setPatientData}
                       patientId={patientId}
                       setDoctorNotes={setDoctorNotes}
+                      setMedicine={setMedicine}
                     />
                   ),
                 )}

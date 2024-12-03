@@ -1,4 +1,4 @@
-import { GraphSchema, PatientDataSchema } from "@/Interfaces";
+import { GraphSchema, Medicine, PatientDataSchema } from "@/Interfaces";
 import { cn } from "@/lib/utils";
 import LineChart from "@/my_components/Charts/charts";
 import { Button, Modal, ModalBody, ModalContent, ModalFooter, useDisclosure } from "@nextui-org/react";
@@ -38,7 +38,8 @@ export const DoctorVitalsLayoutItem = ({
   queryText,
   setPatientData,
   setDoctorNotes,
-  patientId
+  patientId,
+  setMedicine
 }: {
   id: string;
   name: string;
@@ -50,6 +51,7 @@ export const DoctorVitalsLayoutItem = ({
   setPatientData: React.Dispatch<React.SetStateAction<PatientDataSchema>>;
   patientId: string;
   setDoctorNotes: React.Dispatch<React.SetStateAction<string>>;
+  setMedicine: React.Dispatch<React.SetStateAction<Medicine[]>>
 }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [labels, setLabels] = useState<string[]>([]); // X-axis dates
@@ -124,7 +126,7 @@ export const DoctorVitalsLayoutItem = ({
                             patientId: patientId,
                           },
                         );
-                        getPatientMedical(patientId, setPatientData, setDoctorNotes);
+                        getPatientMedical(patientId, setPatientData, setDoctorNotes, setMedicine);
                         ToastInfo("Chart Removed Successfully");
                       } catch (error) {
                         ToastErrors("Remove Chart Failed");
