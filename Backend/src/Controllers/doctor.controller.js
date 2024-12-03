@@ -51,6 +51,8 @@ const getPatientList = asyncHandler(async (req, res) => {
       patientList.push(patient);
     }
 
+    patientList.reverse();
+
     return res
       .status(200)
       .json(
