@@ -155,12 +155,17 @@ const getReportList = asyncHandler(async (req, res) => {
     const sortedReportsList = patient.reportsList
       .map(report => ({
         ...report.toObject(), // Convert Mongoose document to plain object
-        reportPDFLink: getObjectURL(report.reportPDFLink), // Asynchronously generate URL
       }))
       .sort((a, b) => parseDate(b.reportDate) - parseDate(a.reportDate));
 
+      const reportList = [];
+      for (const report of sortedReportsList) {
+        report.reportPDFLink = await getObjectURL(report.reportPDFLink);
+        reportList.push(report);
+      }
+
     return res.status(200).json(
-      new ApiResponse(200, sortedReportsList, "Report list retrieved successfully")
+      new ApiResponse(200, reportList, "Report list retrieved successfully")
     );
   } catch (error) {
     throw new ApiError(500, "Something went wrong in getReportList");
@@ -580,7 +585,7 @@ const getMedicines = asyncHandler(async (req, res) => {
         };
         newMedicinesList.push(newMed);
       }
-
+    
       return res.status(200).json(
         new ApiResponse(
           200,
@@ -592,10 +597,16 @@ const getMedicines = asyncHandler(async (req, res) => {
         )
       );
     } else {
-      // If dates don't match, set pending status for all medicines
+      // If dates don't match, set pending status for all medicines and update in DB
       const newMedicineList = [];
       for (const medicine of patient.medicinesList) {
-        const doctor = await Doctor.findById(medicine.doctor); // Await doctor name fetch
+        // Update status to 'pending' in the database
+        medicine.status = "pending";
+        await medicine.save(); // Save updated status to the database
+    
+        // Fetch the doctor's name for the response
+        const doctor = await Doctor.findById(medicine.doctor);
+    
         const newMed = {
           id: medicine._id,
           medicine: medicine.medicine,
@@ -606,23 +617,18 @@ const getMedicines = asyncHandler(async (req, res) => {
         };
         newMedicineList.push(newMed);
       }
-
-      // Reverse the list if needed
-      newMedicineList.reverse();
-      patient.medicineStatusDate = currDate; // Update the medicine status date
-      await patient.save(); // Save the updated patient data
-
+    
       return res.status(200).json(
         new ApiResponse(
           200,
           {
             medicinesList: newMedicineList,
-            medicineStatusDate: patient.medicineStatusDate,
+            medicineStatusDate: currDate, // Optionally update the medicine status date if needed
           },
-          "Medicines list retrieved successfully"
+          "Medicines status updated to pending and retrieved successfully"
         )
       );
-    }
+    }    
   } catch (error) {
     console.error(error); // Log the error for better debugging
     throw new ApiError(500, "Something went wrong in getMedicines");
