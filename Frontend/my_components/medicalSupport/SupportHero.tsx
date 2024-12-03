@@ -6,6 +6,7 @@ import { FLASK_SERVER } from "@/CONSTANTS";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import Loader from "@/components/ui/Loader"; // Assuming your Loader component is in this path
 import { BACKEND_URI } from "@/CONSTANTS";
+import { ToastErrors } from "@/Helpers/toastError";
 function SupportHero() {
   const cleanTextForDisplay = (text: string): string => {
     return text
@@ -136,13 +137,17 @@ function SupportHero() {
               newReport += conversation[i].text;
               newReport += "\n";
             }
-            axios.post(`${BACKEND_URI}/patient/addChatReport`, {
-              reportDate: dateTime,
-              reportPDFText: newReport,
-            });
-            setContext("");
-            setConversation([{ text: "Hey, how can I help you?", sender: "not_user" }]);
-            setInputText("");
+            try {
+              axios.post(`${BACKEND_URI}/patient/addChatReport`, {
+                reportDate: dateTime,
+                reportPDFText: newReport,
+              });
+              setContext("");
+              setConversation([{ text: "Hey, how can I help you?", sender: "not_user" }]);
+              setInputText("");
+            } catch (error) {
+              ToastErrors("Error saving report");
+            }
           }}>
             End Chat
           </Button>

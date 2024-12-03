@@ -263,25 +263,58 @@ export default function TableExample(props: Props) {
                 onPress={async () => {
                   // hit api to update medicine status
                   if (!isDoctor) {
-                    await axios.post(
-                      `${BACKEND_URI}/patient/toggleMedicineStatus`,
-                      {
-                        medicineId: currSelectedMedicine?.id,
-                        status:
-                          currSelectedMedicine?.status === "taken"
-                            ? "pending"
-                            : "taken",
-                      },
-                    );
+                    try {
+                      await axios.post(
+                        `${BACKEND_URI}/patient/toggleMedicineStatus`,
+                        {
+                          medicineId: currSelectedMedicine?.id,
+                          status:
+                            currSelectedMedicine?.status === "taken"
+                              ? "pending"
+                              : "taken",
+                        },
+                      );
+                      const getMedicines = async () => {
+                        try {
+                          const medicineRes = await axios.post(
+                            `${BACKEND_URI}/patient/getMedicines`,
+                            {},
+                          );
+                          const medicineList = medicineRes.data.data.medicinesList;
+                          const newMedicineList: Medicine[] = [];
+                          for (const medicine of medicineList) {
+                            const newMed: Medicine = {
+                              id: medicine.id,
+                              medicine: medicine.medicine,
+                              dosage: medicine.dosage,
+                              doctor: medicine.doctor,
+                              status: medicine.status,
+                              doctorId: medicine.doctorId,
+                            };
+                            newMedicineList.push(newMed);
+                          }
+                          setMedicine(newMedicineList);
+                        } catch (error) {
+                          console.log(error);
+                        }
+                      };
+                      getMedicines();
+                    } catch (error) {
+                      ToastErrors("Failed to update medicine status");
+                    }
                   } else {
                     if(doctorId !== currSelectedMedicine?.doctorId){
                       ToastErrors("You are not authorized to remove this medicine");
                       return;
                     }
-                    await axios.post(`${BACKEND_URI}/doctor/removeMedicine`, {
-                      medicineId: currSelectedMedicine?.id,
-                      patientId: patientId,
-                    });
+                    try {
+                      await axios.post(`${BACKEND_URI}/doctor/removeMedicine`, {
+                        medicineId: currSelectedMedicine?.id,
+                        patientId: patientId,
+                      });
+                    } catch (error) {
+                      ToastErrors("Failed to remove medicine");
+                    }
                     getPatientMedical(
                       patientId,
                       setPatientData,
@@ -289,31 +322,6 @@ export default function TableExample(props: Props) {
                       setMedicine,
                     );
                   }
-                  const getMedicines = async () => {
-                    try {
-                      const medicineRes = await axios.post(
-                        `${BACKEND_URI}/patient/getMedicines`,
-                        {},
-                      );
-                      const medicineList = medicineRes.data.data.medicinesList;
-                      const newMedicineList: Medicine[] = [];
-                      for (const medicine of medicineList) {
-                        const newMed: Medicine = {
-                          id: medicine.id,
-                          medicine: medicine.medicine,
-                          dosage: medicine.dosage,
-                          doctor: medicine.doctor,
-                          status: medicine.status,
-                          doctorId: medicine.doctorId,
-                        };
-                        newMedicineList.push(newMed);
-                      }
-                      setMedicine(newMedicineList);
-                    } catch (error) {
-                      console.log(error);
-                    }
-                  };
-                  getMedicines();
                   setMedicineSelected(false);
                   setCurrSelectedMedicine({
                     id: "",
@@ -425,11 +433,15 @@ export default function TableExample(props: Props) {
                         />
                         <Button color="success" size="sm" endContent={<PlusIcon />} variant="flat"
                           onClick={async () => {
-                            await axios.post(`${BACKEND_URI}/doctor/addMedicine`, {
-                              patientId: patientId,
-                              medicine: medicineName,
-                              dosage: medicineDosage,
-                            })
+                            try {
+                              await axios.post(`${BACKEND_URI}/doctor/addMedicine`, {
+                                patientId: patientId,
+                                medicine: medicineName,
+                                dosage: medicineDosage,
+                              })
+                            } catch (error) {
+                              ToastErrors("Error adding medicine");
+                            }
                             getPatientMedical(patientId, setPatientData, setDoctorNotes, setMedicine);
                             setMedicineName("");
                             setMedicineDosage("");

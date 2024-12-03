@@ -291,20 +291,23 @@ function ReportTop(props: Props) {
                               onSubmit={async () => {
                                 setQueryResponseShow(false);
                                 setLoadingText(false);
-                                const response = await axios.post(
-                                  `${BACKEND_URI}/patient/queryReports`,
-                                  {
-                                    queryText: prompt,
-                                  },
-                                );
-                                setOldPrompt(prompt);
-
-                                setQueryResponseText(
-                                  response.data.data.response
-                                );
-
-                                setQueryResponseShow(true);
-                                setLoadingText(true);
+                                try {
+                                  const response = await axios.post(
+                                    `${BACKEND_URI}/patient/queryReports`,
+                                    {
+                                      queryText: prompt,
+                                    },
+                                  );
+                                  setOldPrompt(prompt);
+                                  setQueryResponseText(
+                                    response.data.data.response
+                                  );
+                                  setQueryResponseShow(true);
+                                } catch (error) {
+                                  ToastErrors("Failed to query reports");
+                                }finally{
+                                  setLoadingText(true);
+                                }
                               }}
                             />
                           </div>

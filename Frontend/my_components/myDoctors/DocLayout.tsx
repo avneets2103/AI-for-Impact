@@ -1,4 +1,4 @@
-"use Client"
+"use Client";
 import React from "react";
 import { getDocList, removeDoctor } from "@/Helpers/apiCalls";
 import { ToastInfo } from "@/Helpers/toastError";
@@ -42,7 +42,7 @@ export const DocLayoutItem = ({
   qualification,
   experience,
   hospitalNumber,
-  setDocList
+  setDocList,
 }: {
   id: string;
   name: string;
@@ -51,7 +51,7 @@ export const DocLayoutItem = ({
   qualification: string;
   experience: string;
   hospitalNumber: string;
-  setDocList: React.Dispatch<React.SetStateAction<DocSchema[]>>
+  setDocList: React.Dispatch<React.SetStateAction<DocSchema[]>>;
 }) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const copyToClipboard = async () => {
@@ -70,39 +70,39 @@ export const DocLayoutItem = ({
   return (
     <div
       className={cn(
-        "br-black group/bento row-span-1 flex w-[13.4vw] cursor-pointer flex-col justify-between space-y-4 overflow-hidden rounded-xl bg-white p-0 shadow-input transition duration-200 hover:shadow-xl  dark:bg-black dark:shadow-none",
+        "br-black group/bento row-span-1 flex w-[13.4vw] cursor-pointer flex-col justify-between space-y-4 overflow-hidden rounded-xl bg-white p-0 shadow-input transition duration-200 hover:shadow-xl dark:bg-black dark:shadow-none",
       )}
       onClick={() => {
         getDocList(setDocList);
         onOpen();
-      }
-      }
+      }}
     >
-      <div className="w-full h-full relative">
-    
-      {isLoading && (
-        <div className="w-full overflow-clip bg-gray-300 animate-pulse absolute top-0 left-0 rounded-md"></div>
-      )}
-      {/* Image */}
-      <img
-        width={100}
-        height={100}
-        src={img}
-        alt="doctor"
-        onLoad={handleImageLoad}
-        className={`h-full w-full absolute top-0 left-0 transition-opacity duration-500  ${
-          isLoading ? 'opacity-0' : 'opacity-100'
-        }`}
-      />
+      <div className="relative h-full w-full">
+        {isLoading && (
+          <div className="absolute left-0 top-0 w-full animate-pulse overflow-clip rounded-md bg-gray-300"></div>
+        )}
+        {/* Image */}
+        <img
+          width={100}
+          height={100}
+          src={img}
+          alt="doctor"
+          onLoad={handleImageLoad}
+          className={`absolute left-0 top-0 h-full w-full transition-opacity duration-500 ${
+            isLoading ? "opacity-0" : "opacity-100"
+          }`}
+        />
 
-
-        <div className="h-full w-full bg-black opacity-30 -z-5 absolute flex"></div>
-        <div className="h-full w-full z-0 absolute flex justify-between flex-col p-3 text-[whitesmoke]">
+        <div className="-z-5 absolute flex h-full w-full bg-black opacity-30"></div>
+        <div className="absolute z-0 flex h-full w-full flex-col justify-between p-3 text-[whitesmoke]">
           <p>{name.slice(0, Math.min(name.length, 25))}</p>
           <div>
             <p>{speciality.slice(0, Math.min(speciality.length, 25))}</p>
             <p>{qualification.slice(0, Math.min(speciality.length, 25))}</p>
-            <p>{experience.slice(0, Math.min(speciality.length, 25))} of Experience</p>
+            <p>
+              {experience.slice(0, Math.min(speciality.length, 25))} of
+              Experience
+            </p>
           </div>
         </div>
       </div>
@@ -117,11 +117,17 @@ export const DocLayoutItem = ({
             <>
               <ModalBody>
                 <div className="flex items-center gap-2">
-                  <Image width={100} height={100}
-                    src={img}
-                    alt="doctor's image"
-                    className="w-[40px] rounded-[35px] overflow-clip"
-                  />
+                  {/* Doctor's Image */}
+                  <div className="h-[40px] w-[40px] overflow-hidden rounded-full">
+                    <Image
+                      width={40}
+                      height={40}
+                      src={img}
+                      alt="doctor's image"
+                      className="object-cover"
+                    />
+                  </div>
+                  {/* Doctor's Name */}
                   <p>{name}</p>
                 </div>
               </ModalBody>
@@ -130,7 +136,7 @@ export const DocLayoutItem = ({
                   <Button
                     className="mx-auto text-primaryColor"
                     variant="flat"
-                    onPress={()=>removeDoctor(id, setDocList)}
+                    onPress={() => removeDoctor(id, setDocList)}
                   >
                     Remove Doctor
                   </Button>

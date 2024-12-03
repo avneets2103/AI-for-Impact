@@ -100,11 +100,15 @@ const MedicalReport = ({
   const handleToggle = async () => {
     if (doctorNotesEnabeled) {
       // save doctor Note to backedn
-      await axios.post(`${BACKEND_URI}/doctor/saveDoctorNote`, {
-        patientId: id,
-        note: doctorNotes,
-      });
-      ToastInfo("Doctor Note saved successfully");
+      try {
+        await axios.post(`${BACKEND_URI}/doctor/saveDoctorNote`, {
+          patientId: id,
+          note: doctorNotes,
+        });
+        ToastInfo("Doctor Note saved successfully");
+      } catch (error) {
+        ToastErrors("Doctor Note not saved");
+      }
     }
     setDoctorNotesEnabeled(!doctorNotesEnabeled); // Toggle the enabled state
     setToggleLabel(doctorNotesEnabeled ? "Edit" : "Save"); // Update label
@@ -437,17 +441,22 @@ const MedicalReport = ({
                               onSubmit={async () => {
                                 setQueryResponseShow(false);
                                 setLoadingText(false);
-                                let resp = await axios.post(
-                                  `${BACKEND_URI}/patient/queryReports`,
-                                  {
-                                    queryText: prompt,
-                                    patientId: id,
-                                  },
-                                );
-                                setQueryResponseShow(true);
-                                setOldPrompt(prompt);
-                                setQueryResponseText(cleanTextForDisplay(resp.data.data.response));
-                                setLoadingText(true);
+                                try {
+                                  let resp = await axios.post(
+                                    `${BACKEND_URI}/patient/queryReports`,
+                                    {
+                                      queryText: prompt,
+                                      patientId: id,
+                                    },
+                                  );
+                                  setQueryResponseShow(true);
+                                  setOldPrompt(prompt);
+                                  setQueryResponseText(cleanTextForDisplay(resp.data.data.response));
+                                } catch (error) {
+                                  ToastErrors("Query Failed");
+                                }finally{
+                                  setLoadingText(true);
+                                }
                               }}
                             />
                           </div>

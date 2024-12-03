@@ -21,7 +21,7 @@ import { getUserDetails, updatePassword } from "@/Helpers/apiCalls";
 import { ToastErrors, ToastInfo } from "@/Helpers/toastError";
 import Image from "next/image";
 import { FileUploadLimited } from "@/components/ui/file-upload-limited";
-import imageCompression from 'browser-image-compression';
+import imageCompression from "browser-image-compression";
 
 const Sidebar: React.FC = () => {
   const Router = useRouter();
@@ -34,9 +34,9 @@ const Sidebar: React.FC = () => {
       const res = await axios.post(
         `${BACKEND_URI}/auth/profilePhotoUploadSignedURL`,
         {
-          imageType: files[0].type
-        }
-      )
+          imageType: files[0].type,
+        },
+      );
       setPutURL(res.data.data);
       setFiles(files);
     } catch (error) {
@@ -56,7 +56,7 @@ const Sidebar: React.FC = () => {
       const compressedFile = await imageCompression(files[0], options);
       const formData = new FormData();
       formData.append("file", compressedFile);
-  
+
       // Use fetch instead of Axios for uploading to the signed URL
       const response = await fetch(putURL, {
         method: "PUT",
@@ -65,7 +65,7 @@ const Sidebar: React.FC = () => {
           "Content-Type": files[0].type, // Ensure the file content type is correct
         },
       });
-  
+
       if (!response.ok) {
         throw new Error("Image upload failed!");
       }
@@ -77,7 +77,6 @@ const Sidebar: React.FC = () => {
       throw error;
     }
   };
-
 
   // Add this state to ensure component is only rendered on client-side
   const [isMounted, setIsMounted] = useState(false);
@@ -96,7 +95,7 @@ const Sidebar: React.FC = () => {
       try {
         // Verify access token
         const accessTokenResponse = await axios.post(
-          `${BACKEND_URI}/auth/verifyAccessToken`
+          `${BACKEND_URI}/auth/verifyAccessToken`,
         );
         if (accessTokenResponse.status !== 200) {
           Router.push("/login");
@@ -109,7 +108,14 @@ const Sidebar: React.FC = () => {
         console.log("Access token invalid, trying refresh token...");
       }
     };
-    getUserDetails(setName, setEmail, setIsDoc, setDoctorDetails, setPatientDetails, setImageLink);
+    getUserDetails(
+      setName,
+      setEmail,
+      setIsDoc,
+      setDoctorDetails,
+      setPatientDetails,
+      setImageLink,
+    );
     checkTokens();
   }, [isMounted, Router]);
 
@@ -130,7 +136,7 @@ const Sidebar: React.FC = () => {
     experience: "",
     speciality: "",
     hospitalNumber: "",
-  })
+  });
   const [patientDetails, setPatientDetails] = useState<{
     bloodGroup: string;
     sex: string;
@@ -139,18 +145,18 @@ const Sidebar: React.FC = () => {
     bloodGroup: "",
     sex: "",
     age: "",
-  })
-  
+  });
+
   const [updatedPassword, setUpdatedPassword] = useState<string>("");
   const handleUpdatePassword = () => {
-    if(updatePassword.length < minPassLength){
+    if (updatePassword.length < minPassLength) {
       ToastErrors(`Password must be at least ${minPassLength} characters long`);
       return;
     }
     updatePassword(updatedPassword);
     setUpdatedPassword("");
     ToastInfo("Password updated successfully");
-  }
+  };
 
   // Render null or loader before the component mounts to avoid hydration issues
   if (!isMounted || isDoctor === null) {
@@ -162,14 +168,18 @@ const Sidebar: React.FC = () => {
       <div className="flex h-full w-[3rem] flex-col justify-between gap-[2rem] py-[1rem]">
         <div className="flex flex-col items-center justify-center gap-[0.7rem]">
           <div>
-            <Image width={120} height={120}
+            <Image
+              width={120}
+              height={120}
               src="/icons/logo.png"
               alt="logo"
               className="w-full"
             />
           </div>
           <div className="flex w-full flex-col items-center justify-center gap-[0.8rem] rounded-[25px] bg-color1 py-[1rem]">
-            <Image width={100} height={100}
+            <Image
+              width={100}
+              height={100}
               src={
                 theme === "dark"
                   ? "/icons/darkMode.png"
@@ -188,10 +198,12 @@ const Sidebar: React.FC = () => {
                 if (item.path === currentPage) {
                   return (
                     <div
-                      key={item.path+"S" || index} // Ensure key is unique
+                      key={item.path + "S" || index} // Ensure key is unique
                       className="flex h-[2.8rem] w-[2.8rem] flex-col items-center justify-center rounded-[50%] border-[1px] border-textColorDark bg-secondaryColor"
                     >
-                      <Image width={100} height={100}
+                      <Image
+                        width={100}
+                        height={100}
                         src={item.iconS}
                         alt={item.name}
                         className="w-[40%]"
@@ -208,7 +220,9 @@ const Sidebar: React.FC = () => {
                         Router.push(`/sections/${item.path}`);
                       }}
                     >
-                      <Image width={100} height={100}
+                      <Image
+                        width={100}
+                        height={100}
                         src={theme === "dark" ? item.iconNSD : item.iconNS}
                         alt={item.name}
                         className="w-[40%]"
@@ -221,21 +235,29 @@ const Sidebar: React.FC = () => {
             })}
           </div>
         </div>
-        <div className="flex w-full flex-col items-center justify-center rounded-[25px] bg-color1 py-[0.2rem] drop-shadow-md" onClick={onOpen}>
-          <div
-            className="flex h-[2.8rem] w-[2.8rem] flex-col items-center justify-center rounded-[50%] bg-color1"
-          >
-            <Image width={100} height={100}
+        <div
+          className="flex w-full flex-col items-center justify-center rounded-3xl bg-color1 py-1 drop-shadow-md"
+          onClick={onOpen}
+        >
+          {/* Settings Icon */}
+          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-color1">
+            <Image
+              width={44}
+              height={44}
               src={"/icons/setting.NS.png"}
-              alt={"settings"}
-              className="w-[40%]"
+              alt="settings"
+              className="w-2/5"
             />
           </div>
-          <div className="flex h-[2.8rem] w-[2.8rem] flex-col items-center justify-center rounded-[50%] bg-color1">
-            <Image width={100} height={100}
+
+          {/* Avatar */}
+          <div className="flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-color1">
+            <Image
+              width={44}
+              height={44}
               src={imageLink}
-              alt={"avatar"}
-              className="w-[95%] rounded-full overflow-clip"
+              alt="avatar"
+              className="object-cover"
             />
           </div>
         </div>
@@ -248,32 +270,127 @@ const Sidebar: React.FC = () => {
                 Settings
               </ModalHeader>
               <ModalBody className="max-h-[52vh] overflow-y-scroll">
-                <Input type="text" placeholder="Name" label="Name" value={name || ""} disabled />
-                <Input type="text" placeholder="Email" label="Email" value={email || ""} disabled />
-                {isDoc && <Input size="sm" type="text" placeholder="Speciality" label="Speciality" value={doctorDetails.speciality || ""} disabled />}
-                {isDoc && <Input size="sm" type="text" placeholder="Qualification" label="Qualification" value={doctorDetails.qualifications || ""} disabled />}
-                {isDoc && <Input size="sm" type="text" placeholder="Experience" label="Experience" value={doctorDetails.experience || ""} disabled />}
-                {isDoc && <Input size="sm" type="text" placeholder="Hospital Number" label="Hospital Number" value={doctorDetails.hospitalNumber || ""} disabled />}
-                {!isDoc && <Input size="sm" type="text" placeholder="Age" label="Age" value={patientDetails.age || ""} disabled />}
-                {!isDoc && <Input size="sm" type="text" placeholder="Sex" label="Sex" value={patientDetails.sex || ""} disabled />}
-                {!isDoc && <Input size="sm" type="text" placeholder="Blood Group" label="Blood Group" value={patientDetails.bloodGroup || ""} disabled />}
+                <Input
+                  type="text"
+                  placeholder="Name"
+                  label="Name"
+                  value={name || ""}
+                  disabled
+                />
+                <Input
+                  type="text"
+                  placeholder="Email"
+                  label="Email"
+                  value={email || ""}
+                  disabled
+                />
+                {isDoc && (
+                  <Input
+                    size="sm"
+                    type="text"
+                    placeholder="Speciality"
+                    label="Speciality"
+                    value={doctorDetails.speciality || ""}
+                    disabled
+                  />
+                )}
+                {isDoc && (
+                  <Input
+                    size="sm"
+                    type="text"
+                    placeholder="Qualification"
+                    label="Qualification"
+                    value={doctorDetails.qualifications || ""}
+                    disabled
+                  />
+                )}
+                {isDoc && (
+                  <Input
+                    size="sm"
+                    type="text"
+                    placeholder="Experience"
+                    label="Experience"
+                    value={doctorDetails.experience || ""}
+                    disabled
+                  />
+                )}
+                {isDoc && (
+                  <Input
+                    size="sm"
+                    type="text"
+                    placeholder="Hospital Number"
+                    label="Hospital Number"
+                    value={doctorDetails.hospitalNumber || ""}
+                    disabled
+                  />
+                )}
+                {!isDoc && (
+                  <Input
+                    size="sm"
+                    type="text"
+                    placeholder="Age"
+                    label="Age"
+                    value={patientDetails.age || ""}
+                    disabled
+                  />
+                )}
+                {!isDoc && (
+                  <Input
+                    size="sm"
+                    type="text"
+                    placeholder="Sex"
+                    label="Sex"
+                    value={patientDetails.sex || ""}
+                    disabled
+                  />
+                )}
+                {!isDoc && (
+                  <Input
+                    size="sm"
+                    type="text"
+                    placeholder="Blood Group"
+                    label="Blood Group"
+                    value={patientDetails.bloodGroup || ""}
+                    disabled
+                  />
+                )}
                 <div className="flex gap-2">
-                  <Input size="sm" type="password" placeholder="New password " label="Update Password" value={updatedPassword} onChange={(e) => setUpdatedPassword(e.target.value)} />
-                  <Button className="bg-primaryColor text-white h-[6]" variant="flat" onPress={() => {
-                    handleUpdatePassword();
-                    updatePassword.length>=minPassLength && onClose();
-                  }}>
+                  <Input
+                    size="sm"
+                    type="password"
+                    placeholder="New password "
+                    label="Update Password"
+                    value={updatedPassword}
+                    onChange={(e) => setUpdatedPassword(e.target.value)}
+                  />
+                  <Button
+                    className="h-[6] bg-primaryColor text-white"
+                    variant="flat"
+                    onPress={() => {
+                      handleUpdatePassword();
+                      updatePassword.length >= minPassLength && onClose();
+                    }}
+                  >
                     Update
                   </Button>
                 </div>
-                <div className="w-full max-w-4xl mx-auto border border-dashed bg-white dark:bg-black border-neutral-200 dark:border-neutral-800 rounded-lg flex flex-col">
+                <div className="mx-auto flex w-full max-w-4xl flex-col rounded-lg border border-dashed border-neutral-200 bg-white dark:border-neutral-800 dark:bg-black">
                   <div>
-                    <FileUploadLimited onChange={handleFileUpload} maxFileCount={1}/>
+                    <FileUploadLimited
+                      onChange={handleFileUpload}
+                      maxFileCount={1}
+                    />
                   </div>
                 </div>
                 <div className="flex justify-center">
-                    <Button size="md" className="w-[30%]" onPress={handleImageSubmit}>Submit</Button>
-                  </div>
+                  <Button
+                    size="md"
+                    className="w-[30%]"
+                    onPress={handleImageSubmit}
+                  >
+                    Submit
+                  </Button>
+                </div>
               </ModalBody>
               <ModalFooter>
                 <Button
