@@ -1,5 +1,5 @@
 import { BACKEND_URI } from "@/CONSTANTS";
-import { DocSchema, PatientDataSchema, PatientSchema, ReportsSchema } from "@/Interfaces";
+import { DocSchema, Medicine, PatientDataSchema, PatientSchema, ReportsSchema } from "@/Interfaces";
 import axios from "@/utils/axios";
 import { Toast, ToastInfo } from "./toastError";
 import exp from "constants";
@@ -95,10 +95,29 @@ const getReportsList = async (setReportsList: React.Dispatch<React.SetStateActio
   setReportsList(response.data.data);
 }
 
-const getPatientMedical = async (patientId: string, setPatientData: React.Dispatch<React.SetStateAction<PatientDataSchema>>, setDoctorNotes: React.Dispatch<React.SetStateAction<string>>) => {
+const getPatientMedical = async (patientId: string, setPatientData: React.Dispatch<React.SetStateAction<PatientDataSchema>>, setDoctorNotes: React.Dispatch<React.SetStateAction<string>>, setMedicine: React.Dispatch<React.SetStateAction<Medicine[]>>) => {
   const response = await axios.post(`${BACKEND_URI}/doctor/getPatientMedical`, {
     patientId
   })
+  const medicineRes = await axios.post(
+    `${BACKEND_URI}/patient/getMedicines`, {
+      patientId
+    }
+  );
+  const medicineList = medicineRes.data.data.medicinesList;
+  const newMedicineList:Medicine[] = [];
+  for (const medicine of medicineList) {
+    const newMed:Medicine = {
+      id: medicine.id,
+      medicine: medicine.medicine,
+      dosage: medicine.dosage,
+      doctor: medicine.doctor,
+      status: medicine.status,
+      doctorId: medicine.doctorId
+    };
+    newMedicineList.push(newMed);
+  }
+  setMedicine(newMedicineList);
   setPatientData(response.data.data);
   setDoctorNotes(response.data.data.note);
 }

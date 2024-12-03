@@ -12,7 +12,7 @@ import { ReportsData } from "@/Data/ReportsData";
 import MyPatientReportHero from "./myPatientsReports";
 import DiagnosisAI from "./diagnosisAI";
 import { getPatientMedical, removePatient } from "@/Helpers/apiCalls";
-import { GraphSchema, PatientDataSchema, PatientSchema } from "@/Interfaces";
+import { GraphSchema, Medicine, PatientDataSchema, PatientSchema } from "@/Interfaces";
 import Image from "next/image";
 import { VitalsLayout, VitalsLayoutItem } from "../healthVitals/VitalsLayout";
 import {
@@ -34,6 +34,7 @@ import {
   useDisclosure,
 } from "@nextui-org/react";
 import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input";
+import TableExample from "../Table/table";
 
 interface Props {
   name: string;
@@ -65,9 +66,10 @@ const MedicalReport = ({
     note: "",
     chartsList: [],
   });
+  const [medicine, setMedicine] = useState<Medicine[]>([]);
 
   useEffect(() => {
-    getPatientMedical(id, setPatientData, setDoctorNotes);
+    getPatientMedical(id, setPatientData, setDoctorNotes, setMedicine);
   }, []);
   const [prompt, setPrompt] = useState("");
   const { theme, setTheme } = useTheme();
@@ -129,6 +131,11 @@ const MedicalReport = ({
       iconL: "/icons/diagnosisL.png",
       iconD: "/icons/diagnosisD.png",
     },
+    {
+      name: "Medication",
+      iconL: "/icons/med.ns.png",
+      iconD: "/icons/med.ns.D.png",
+    }
   ];
 
   const renderContent = () => {
@@ -229,7 +236,7 @@ const MedicalReport = ({
                       unit: newChart.unit,
                     },
                   );
-                  getPatientMedical(id, setPatientData, setDoctorNotes);
+                  getPatientMedical(id, setPatientData, setDoctorNotes, setMedicine);
                   setPrompt("");
                   ToastInfo("Chart Added Successfully");
                 } catch (e) {
@@ -276,6 +283,8 @@ const MedicalReport = ({
         );
       case "Diagnosis":
         return <DiagnosisAI id={id} />;
+      case "Medication":
+        return <TableExample medicine={medicine} setMedicine={setMedicine} isDoctor={true} patientId={id} setPatientData={setPatientData} setDoctorNotes={setDoctorNotes}/>;
       default:
         return null;
     }
@@ -355,7 +364,7 @@ const MedicalReport = ({
       <div className="flex max-h-[85vh] w-[85%] flex-col overflow-y-auto">
         <div className="flex w-full flex-col items-center">
           <div className="flex">
-            <div className="flex w-[200px] justify-center gap-2 rounded-[20px] bg-bgColor p-2">
+            <div className="flex justify-center gap-2 rounded-[20px] bg-bgColor p-2">
               {patientTabs.map((tab) => (
                 <Button
                   key={tab.name}

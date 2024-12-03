@@ -85,6 +85,7 @@ interface Medicine{
     dosage: string;
     doctor: string;
     status: string;
+    doctorId: string;
 }
 
 export type {

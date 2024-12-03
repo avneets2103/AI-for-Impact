@@ -44,6 +44,7 @@ function MyMedicines() {
             dosage: medicine.dosage,
             doctor: medicine.doctor,
             status: medicine.status,
+            doctorId: medicine.doctorId
           };
           newMedicineList.push(newMed);
         }

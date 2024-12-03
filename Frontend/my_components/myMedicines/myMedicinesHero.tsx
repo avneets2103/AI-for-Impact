@@ -11,7 +11,7 @@ interface Props {
 function MyMedicinesHero(props: Props) {
     const {medicine, setMedicine} = props
     return (
-        <TableExample medicine={medicine} setMedicine={setMedicine}/>
+        <TableExample medicine={medicine} setMedicine={setMedicine} isDoctor={false} patientId={""} setPatientData={() => {}} setDoctorNotes={() => {}}/>
     )
 }
 

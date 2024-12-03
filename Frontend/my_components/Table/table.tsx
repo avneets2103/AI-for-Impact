@@ -23,10 +23,12 @@ import { ChevronDownIcon } from "./ChevronDownIcon";
 import { SearchIcon } from "./SearchIcon";
 import { columns, statusOptions } from "./data";
 import { capitalize } from "./utils";
-import { Medicine } from "@/Interfaces";
+import { Medicine, PatientDataSchema } from "@/Interfaces";
 import axios from "@/utils/axios";
 import { BACKEND_URI } from "@/CONSTANTS";
-
+import { getPatientMedical } from "@/Helpers/apiCalls";
+import { Popover, PopoverTrigger, PopoverContent } from "@nextui-org/react";
+import { ToastErrors } from "@/Helpers/toastError";
 
 const statusColorMap: Record<string, ChipProps["color"]> = {
   taken: "success",
@@ -44,10 +46,21 @@ const INITIAL_VISIBLE_COLUMNS = [
 interface Props {
   medicine: Medicine[];
   setMedicine: React.Dispatch<React.SetStateAction<Medicine[]>>;
+  isDoctor: boolean;
+  patientId: string;
+  setPatientData: React.Dispatch<React.SetStateAction<PatientDataSchema>>;
+  setDoctorNotes: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export default function TableExample(props: Props) {
-  const {medicine, setMedicine} = props
+  const {
+    medicine,
+    setMedicine,
+    isDoctor,
+    patientId,
+    setPatientData,
+    setDoctorNotes,
+  } = props;
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(
     new Set([]),
@@ -61,17 +74,21 @@ export default function TableExample(props: Props) {
     column: "age",
     direction: "ascending",
   });
+  const [medicineName, setMedicineName] = React.useState("");
+  const [medicineDosage, setMedicineDosage] = React.useState("");
   const [medicineSelected, setMedicineSelected] =
     React.useState<boolean>(false);
   let currSelectedId =
     Array.from(selectedKeys).length > 0 ? Array.from(selectedKeys)[0] : "";
-  const [currSelectedMedicine, setCurrSelectedMedicine] = React.useState<Medicine>({
-    id: "",
-    medicine: "",
-    dosage: "",
-    doctor: "", 
-    status: "taken",
-  });
+  const [currSelectedMedicine, setCurrSelectedMedicine] =
+    React.useState<Medicine>({
+      id: "",
+      medicine: "",
+      dosage: "",
+      doctor: "",
+      status: "taken",
+      doctorId: "",
+    });
   useEffect(() => {
     if (currSelectedId !== "") {
       setCurrSelectedMedicine(
@@ -87,6 +104,21 @@ export default function TableExample(props: Props) {
       setMedicineSelected(false);
     }
   }, [selectedKeys]);
+
+  const [doctorId, setDoctorId] = React.useState("");
+  useEffect(() => {
+    if(isDoctor) {
+      const getDoctorId = async () => {
+        try {
+          const res = await axios.post(`${BACKEND_URI}/auth/getUserData`, {});
+          setDoctorId(res.data.data.doctorId);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+      getDoctorId();
+    }
+  }, []);
 
   const [page, setPage] = React.useState(1);
 
@@ -222,32 +254,57 @@ export default function TableExample(props: Props) {
               <Button
                 variant="flat"
                 color={
-                  medicineSelected
+                  !isDoctor && medicineSelected
                     ? currSelectedMedicine?.status === "taken"
                       ? "success"
                       : "danger"
-                    : "default"
+                    : "danger"
                 }
                 onPress={async () => {
                   // hit api to update medicine status
-                  await axios.post(`${BACKEND_URI}/patient/toggleMedicineStatus`, {
-                    medicineId: currSelectedMedicine?.id,
-                    status: currSelectedMedicine?.status === "taken" ? "pending" : "taken",
-                  })
+                  if (!isDoctor) {
+                    await axios.post(
+                      `${BACKEND_URI}/patient/toggleMedicineStatus`,
+                      {
+                        medicineId: currSelectedMedicine?.id,
+                        status:
+                          currSelectedMedicine?.status === "taken"
+                            ? "pending"
+                            : "taken",
+                      },
+                    );
+                  } else {
+                    if(doctorId !== currSelectedMedicine?.doctorId){
+                      ToastErrors("You are not authorized to remove this medicine");
+                      return;
+                    }
+                    await axios.post(`${BACKEND_URI}/doctor/removeMedicine`, {
+                      medicineId: currSelectedMedicine?.id,
+                      patientId: patientId,
+                    });
+                    getPatientMedical(
+                      patientId,
+                      setPatientData,
+                      setDoctorNotes,
+                      setMedicine,
+                    );
+                  }
                   const getMedicines = async () => {
                     try {
                       const medicineRes = await axios.post(
-                        `${BACKEND_URI}/patient/getMedicines`, {}
+                        `${BACKEND_URI}/patient/getMedicines`,
+                        {},
                       );
                       const medicineList = medicineRes.data.data.medicinesList;
-                      const newMedicineList:Medicine[] = [];
+                      const newMedicineList: Medicine[] = [];
                       for (const medicine of medicineList) {
-                        const newMed:Medicine = {
+                        const newMed: Medicine = {
                           id: medicine.id,
                           medicine: medicine.medicine,
                           dosage: medicine.dosage,
                           doctor: medicine.doctor,
                           status: medicine.status,
+                          doctorId: medicine.doctorId,
                         };
                         newMedicineList.push(newMed);
                       }
@@ -264,15 +321,17 @@ export default function TableExample(props: Props) {
                     dosage: "",
                     doctor: "",
                     status: "taken",
-                  })
-                  setSelectedKeys(new Set([]))
+                    doctorId: "",
+                  });
+                  setSelectedKeys(new Set([]));
                 }}
               >
-                {medicineSelected
+                {!isDoctor && medicineSelected
                   ? currSelectedMedicine?.status === "taken"
                     ? "Mark as Pending"
                     : "Mark as Taken"
-                  : "default"}
+                  : ""}
+                {isDoctor && "Remove Medicine"}
               </Button>
             ) : (
               <></>
@@ -330,9 +389,60 @@ export default function TableExample(props: Props) {
                   ))}
               </DropdownMenu>
             </Dropdown>
-            {/* <Button color="primary" endContent={<PlusIcon />}>
-              Add New
-            </Button> */}
+
+            {isDoctor && (
+              <Popover placement="bottom" showArrow offset={10}>
+                <PopoverTrigger>
+                  <Button color="primary" endContent={<PlusIcon />}>Add New</Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[240px]">
+                  {(titleProps) => (
+                    <div className="w-full px-1 py-2">
+                      <p
+                        className="text-small font-bold text-foreground"
+                        {...titleProps}
+                      >
+                        Medicine
+                      </p>
+                      <div className="mt-2 flex w-full flex-col gap-2">
+                        <Input
+                          placeholder="Eg: Aspirin"
+                          label="Medicine Name"
+                          size="sm"
+                          variant="bordered"
+                          onChange={(e) => {
+                            setMedicineName(e.target.value);
+                          }}
+                          value={medicineName}
+                        />
+                        <Input
+                          placeholder="Eg: 100mg Morning"
+                          label="Dosage"
+                          size="sm"
+                          variant="bordered"
+                          onChange={(e) => setMedicineDosage(e.target.value)}
+                          value={medicineDosage}
+                        />
+                        <Button color="success" size="sm" endContent={<PlusIcon />} variant="flat"
+                          onClick={async () => {
+                            await axios.post(`${BACKEND_URI}/doctor/addMedicine`, {
+                              patientId: patientId,
+                              medicine: medicineName,
+                              dosage: medicineDosage,
+                            })
+                            getPatientMedical(patientId, setPatientData, setDoctorNotes, setMedicine);
+                            setMedicineName("");
+                            setMedicineDosage("");
+                          }}
+                        >
+                          Add Medicine
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </PopoverContent>
+              </Popover>
+            )}
           </div>
         </div>
       </div>
@@ -347,6 +457,8 @@ export default function TableExample(props: Props) {
     hasSearchFilter,
     medicineSelected,
     currSelectedMedicine,
+    medicineName, 
+    medicineDosage,
   ]);
 
   const bottomContent = React.useMemo(() => {
@@ -365,18 +477,18 @@ export default function TableExample(props: Props) {
     <>
       <Table
         color={
-          medicineSelected
+          !isDoctor && medicineSelected
             ? currSelectedMedicine?.status === "taken"
               ? "success"
               : "danger"
-            : "default"
+            : "danger"
         }
         aria-label="Example table with custom cells, pagination and sorting"
         isHeaderSticky
         bottomContent={bottomContent}
         bottomContentPlacement="outside"
         classNames={{
-          wrapper: "max-h-80%] overflow-y-scroll",
+          wrapper: "overflow-y-scroll",
         }}
         className="max-h-[80vh]"
         selectedKeys={selectedKeys}

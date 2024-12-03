@@ -243,6 +243,7 @@ const removePatient = asyncHandler(async (req, res) => {
 const addMedicine = asyncHandler(async (req, res) => {
   try {
     const { patientId, medicine, dosage } = req.body;
+    console.log(patientId,medicine, dosage);
 
     if (!medicine || !dosage) {
       throw new ApiError(400, "Medicine name and dosage are required");
@@ -274,8 +275,7 @@ const addMedicine = asyncHandler(async (req, res) => {
 
     patient.medicinesList.push(newMedicine);
     await patient.save();
-
-    console.log(`Medicine added successfully for Patient ID: ${patientId}`);
+    
     return res
       .status(200)
       .json(
@@ -314,7 +314,6 @@ const removeMedicine = asyncHandler(async (req, res) => {
     // const index = patient.medicinesList.indexOf(medicineId);
     let index = -1;
     for (let i = 0; i < patient.medicinesList.length; i++) {
-        console.log(patient.medicinesList[i]._id.toString());
       if (patient.medicinesList[i]._id.toString() === medicineId) {
         index = i;
         break;

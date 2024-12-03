@@ -436,11 +436,13 @@ const getUserData = asyncHandler(async (req, res) => {
             response.qualification = doctor.qualifications;
             response.experience = doctor.experience;
             response.hospitalNumber = doctor.hostpitalNumber;
+            response.doctorId = doctor._id;
         }else{
             const patient = await Patient.findById(user.patientDetails);
             response.age = patient.age;
             response.sex = patient.sex;
             response.bloodGroup = patient.bloodGroup;
+            response.patientId = patient._id;
         }
         return res
             .status(200)

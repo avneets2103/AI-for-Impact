@@ -629,7 +629,6 @@ const toggleMedicineStatus = asyncHandler(async (req, res) => {
     if (!patient) {
       throw new ApiError(404, "Patient not found");
     }
-    console.log(patient.medicinesList)
     let index = -1;
     let i = 0;
     for (const medicine of patient.medicinesList) {
