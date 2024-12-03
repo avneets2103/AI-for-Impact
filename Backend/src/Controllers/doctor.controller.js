@@ -95,21 +95,32 @@ const getPatientMedical = asyncHandler(async (req, res) => {
     const patient = await Patient.findById(patientId).populate(
       "doctorsNotes.doctor"
     ); // Populate doctor data
+
     if (!patient) {
       throw new ApiError(404, "Patient not found");
     }
+
     // Check if the doctor has authorization
     if (!patient.doctorsList.includes(req.user.doctorDetails._id)) {
       throw new ApiError(401, "Unauthorized access");
     }
 
-    // Generate report list with S3 URLs
-    const reportList = await Promise.all(
-      patient.reportsList.map(async (report) => {
-        report.reportPDFLink = await getObjectURL(report.reportPDFLink);
-        return report;
-      })
-    );
+    // Helper function to parse "DD/MM/YY" to a Date object
+    const parseDate = (dateString) => {
+      const [day, month, year] = dateString.split("/").map(Number);
+      const fullYear = year < 100 ? 2000 + year : year;
+      return new Date(fullYear, month - 1, day);
+    };
+
+    // Generate and sort report list
+    const reportList = (
+      await Promise.all(
+        patient.reportsList.map(async (report) => {
+          report.reportPDFLink = await getObjectURL(report.reportPDFLink);
+          return report;
+        })
+      )
+    ).sort((a, b) => parseDate(b.reportDate) - parseDate(a.reportDate));
 
     // Retrieve the specific doctor's note if it exists
     const doctorNoteEntry = patient.doctorsNotes.find(
@@ -118,22 +129,16 @@ const getPatientMedical = asyncHandler(async (req, res) => {
     );
     const docNote = doctorNoteEntry ? doctorNoteEntry.note : "";
 
-    reportList.reverse(); // Optional sorting for reports
-
     const chartsList = patient.chartsList;
-    let newChartsList = [];
-    for (const chart of chartsList) {
-      const newChart = {
-        id: chart._id,
-        name: chart.chartName,
-        data: chart.data,
-        description: chart.description,
-        sourceList: chart.sourceList,
-        queryText: chart.queryText,
-        unit: chart.unit,
-      };
-      newChartsList.push(newChart);
-    }
+    const newChartsList = chartsList.map((chart) => ({
+      id: chart._id,
+      name: chart.chartName,
+      data: chart.data,
+      description: chart.description,
+      sourceList: chart.sourceList,
+      queryText: chart.queryText,
+      unit: chart.unit,
+    }));
 
     const response = {
       sex: patient.sex,
@@ -142,7 +147,7 @@ const getPatientMedical = asyncHandler(async (req, res) => {
       condition: patient.assistiveDiagnosis || "",
       medicalHistory: patient.medicalHistorySummary || "",
       currentSymptoms: patient.currentSymptomsSummary || "",
-      reportsList: reportList,
+      reportsList: reportList, // Sorted list
       absoluteSummary: patient.absoluteSummary || "",
       note: docNote,
       chartsList: newChartsList,

@@ -134,23 +134,34 @@ const getReportList = asyncHandler(async (req, res) => {
     if (!user || !user.patientDetails) {
       throw new ApiError(404, "Patient not found");
     }
+
     const patient = await Patient.findById(user.patientDetails._id).populate(
       "reportsList"
     );
+
     if (!patient) {
       throw new ApiError(404, "Patient details not found");
     }
-    const reportList = [];
-    for (const report of patient.reportsList) {
-      report.reportPDFLink = await getObjectURL(report.reportPDFLink);
-      reportList.push(report);
-    }
-    reportList.reverse();
-    return res
-      .status(200)
-      .json(
-        new ApiResponse(200, reportList, "Report list retrieved successfully")
-      );
+
+    // Helper function to parse "DD/MM/YY" to a Date object
+    const parseDate = (dateString) => {
+      const [day, month, year] = dateString.split("/").map(Number);
+      // Ensure the year is handled correctly for "YY" format (e.g., "23" => "2023")
+      const fullYear = year < 100 ? 2000 + year : year;
+      return new Date(fullYear, month - 1, day);
+    };
+
+    // Sort reports in descending order of reportDate
+    const sortedReportsList = patient.reportsList
+      .map(report => ({
+        ...report.toObject(), // Convert Mongoose document to plain object
+        reportPDFLink: getObjectURL(report.reportPDFLink), // Asynchronously generate URL
+      }))
+      .sort((a, b) => parseDate(b.reportDate) - parseDate(a.reportDate));
+
+    return res.status(200).json(
+      new ApiResponse(200, sortedReportsList, "Report list retrieved successfully")
+    );
   } catch (error) {
     throw new ApiError(500, "Something went wrong in getReportList");
   }
