@@ -26,13 +26,12 @@ function DiagnosisAI({id}: Props) {
     return text
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')   // Convert **text** to <strong>text</strong>
       .replace(/^\*\s(.+)$/gm, '• $1')                    // Convert lines starting with * to bullet points
-         // Bold text before colons
+      .replace(/\b([^:\s]+):\s/g, '<strong>$1:</strong>') // Bold text before colons
       .replace(/\n/g, '<br>')                             // Convert newlines to <br> tags
-      .replace(/(\d+)\.\s/g, '<br>$1. ')                  // Add line breaks for numbered lists
+      .replace(/(^|\n)(\d+)\.\s(?!\d{1,2}\/\d{1,2}\/\d{2,4})/g, '<br>$2. ') // Add line breaks for numbered lists, exclude dates
       .replace(/\n\s*[-]\s/g, '<br>• ')                   // Add line breaks and bullets for lists with dashes
       .replace(/\n{2,}/g, '<br><br>');                    // Convert multiple newlines to <br><br>
   };
-  
 
   /**
    * The chatBodyRef is a reference to the chat body element.

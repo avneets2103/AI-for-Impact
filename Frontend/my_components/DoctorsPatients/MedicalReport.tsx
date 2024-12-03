@@ -305,7 +305,7 @@ const MedicalReport = ({
   const cleanTextForDisplay = (text: string): string => {
     return text
       .replace(/\*\*(.*?)\*\*/g, "$1") // Remove **bold** markers
-      .replace(/[^\w\s\d\.\,\!\?\-]/g, "") // Remove special characters (excluding common punctuation)
+      .replace(/[^\w\s\d\.\,\!\?\/\-]/g, "") // Remove special characters (excluding common punctuation and slashes)
       .replace(/\n+/g, " ") // Replace multiple newlines with a single space
       .replace(/(\d+\.\s)/g, "\n$1") // Insert newline before numbered points
       .trim(); // Trim any excess whitespace at the start/end

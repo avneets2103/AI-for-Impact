@@ -129,12 +129,12 @@ function ReportTop(props: Props) {
   const cleanTextForDisplay = (text: string): string => {
     return text
       .replace(/\*\*(.*?)\*\*/g, "$1") // Remove **bold** markers
-      .replace(/[^\w\s\d\.\,\!\?\-]/g, "") // Remove special characters (excluding common punctuation)
+      .replace(/[^\w\s\d\.\,\!\?\/\-]/g, "") // Remove special characters (excluding common punctuation and slashes)
       .replace(/\n+/g, " ") // Replace multiple newlines with a single space
       .replace(/(\d+\.\s)/g, "\n$1") // Insert newline before numbered points
       .trim(); // Trim any excess whitespace at the start/end
   };
-
+  
   return (
     <div className="width-[100%] my-4 flex h-[7%] cursor-pointer items-center justify-between font-medium">
       <div className="flex gap-4">

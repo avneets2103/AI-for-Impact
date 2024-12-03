@@ -2,32 +2,20 @@ import React, { useEffect, useRef, useState } from "react";
 import { Message } from "@/Interfaces";
 import { Button, Input } from "@nextui-org/react";
 import axios from "@/utils/axios";
-import { FLASK_SERVER } from "@/CONSTANTS";
-import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import Loader from "@/components/ui/Loader"; // Assuming your Loader component is in this path
 import { BACKEND_URI } from "@/CONSTANTS";
 import { ToastErrors } from "@/Helpers/toastError";
 function SupportHero() {
-  const cleanTextForDisplay = (text: string): string => {
-    return text
-      .replace(/\*\*(.*?)\*\*/g, '$1')  // Remove **bold** markers
-      .replace(/(\d+)\.\s/g, '\n$1. ')  // Start each numbered list item on a new line
-      .replace(/\n\s*[-*]\s*/g, '\n• ')  // Replace bullet points with consistent "•" symbol
-      .replace(/\n{2,}/g, '\n\n')        // Ensure single empty line between paragraphs
-      .replace(/[^\w\s\d.,!?%-]/g, '')   // Remove unwanted special characters, allowing punctuation
-      .trim();                           // Trim extra whitespace
-  };
   const formatTextAsHTML = (text: string): string => {
     return text
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')   // Convert **text** to <strong>text</strong>
       .replace(/^\*\s(.+)$/gm, '• $1')                    // Convert lines starting with * to bullet points
-         // Bold text before colons
+      .replace(/\b([^:\s]+):\s/g, '<strong>$1:</strong>') // Bold text before colons
       .replace(/\n/g, '<br>')                             // Convert newlines to <br> tags
-      .replace(/(\d+)\.\s/g, '<br>$1. ')                  // Add line breaks for numbered lists
+      .replace(/(^|\n)(\d+)\.\s(?!\d{1,2}\/\d{1,2}\/\d{2,4})/g, '<br>$2. ') // Add line breaks for numbered lists, exclude dates
       .replace(/\n\s*[-]\s/g, '<br>• ')                   // Add line breaks and bullets for lists with dashes
       .replace(/\n{2,}/g, '<br><br>');                    // Convert multiple newlines to <br><br>
   };
-  
 
   const [conversation, setConversation] = useState<Message[]>([
     { text: "Hey, how can I help you?", sender: "not_user" },
