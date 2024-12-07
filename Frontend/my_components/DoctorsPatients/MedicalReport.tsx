@@ -23,7 +23,7 @@ import { ToastErrors, ToastInfo } from "@/Helpers/toastError";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
 import Loader from "@/components/ui/Loader";
 import axios from "@/utils/axios";
-
+import ReactMarkdown from 'react-markdown';
 import { BACKEND_URI } from "@/CONSTANTS";
 import {
   Modal,
@@ -158,7 +158,7 @@ const MedicalReport = ({
                 />
                 Patient Overview
               </h2>
-              <p>{patientData.absoluteSummary}</p>
+              <ReactMarkdown>{patientData.absoluteSummary}</ReactMarkdown>
             </div>
             <div>
               <div className="flex items-center justify-between">
@@ -240,7 +240,7 @@ const MedicalReport = ({
                       unit: newChart.unit,
                     },
                   );
-                  getPatientMedical(id, setPatientData, setDoctorNotes, setMedicine);
+                  await getPatientMedical(id, setPatientData, setDoctorNotes, setMedicine);
                   setPrompt("");
                   ToastInfo("Chart Added Successfully");
                 } catch (e) {
@@ -302,15 +302,6 @@ const MedicalReport = ({
   const [oldPrompt, setOldPrompt] = useState(""); // Loader state
   const [context, setContext] = useState("");
 
-  const cleanTextForDisplay = (text: string): string => {
-    return text
-      .replace(/\*\*(.*?)\*\*/g, "$1") // Remove **bold** markers
-      .replace(/[^\w\s\d\.\,\!\?\/\-]/g, "") // Remove special characters (excluding common punctuation and slashes)
-      .replace(/\n+/g, " ") // Replace multiple newlines with a single space
-      .replace(/(\d+\.\s)/g, "\n$1") // Insert newline before numbered points
-      .trim(); // Trim any excess whitespace at the start/end
-  };
-
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(queryResponseText);
@@ -343,10 +334,6 @@ const MedicalReport = ({
             </p>
             <p>
               <span className="font-medium">Age</span>: {patientData.age}
-            </p>
-            <p>
-              <span className="font-medium">Condition</span>:{" "}
-              {patientData.condition}
             </p>
             <p>
               <span className="font-medium">Blood Group</span>:{" "}
@@ -429,7 +416,7 @@ const MedicalReport = ({
                             alt=""
                             className="h-[20px] w-[20px]"
                           />
-                          Ask your Reports
+                          Ask Patient's Reports
                         </p>
                       </ModalHeader>
                       <ModalBody className="max-h-[60vh] overflow-y-auto">
@@ -451,7 +438,7 @@ const MedicalReport = ({
                                   );
                                   setQueryResponseShow(true);
                                   setOldPrompt(prompt);
-                                  setQueryResponseText(cleanTextForDisplay(resp.data.data.response));
+                                  setQueryResponseText(resp.data.data.response);
                                 } catch (error) {
                                   ToastErrors("Query Failed");
                                 }finally{
@@ -497,9 +484,7 @@ const MedicalReport = ({
                                   <p className="text-md font-medium">
                                     {oldPrompt}
                                   </p>
-                                  <TextGenerateEffect
-                                    words={queryResponseText}
-                                  />
+                                  <ReactMarkdown>{queryResponseText}</ReactMarkdown>
                                 </div>
                               }
                             </div>

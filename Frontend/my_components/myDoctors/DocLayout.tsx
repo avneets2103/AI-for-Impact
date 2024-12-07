@@ -70,7 +70,7 @@ export const DocLayoutItem = ({
   return (
     <div
       className={cn(
-        "br-black group/bento row-span-1 flex w-[13.4vw] cursor-pointer flex-col justify-between space-y-4 overflow-hidden rounded-xl bg-white p-0 shadow-input transition duration-200 hover:shadow-xl dark:bg-black dark:shadow-none",
+        "br-black group/bento row-span-1 flex w-[13.4vw] min-h-[35vh] cursor-pointer flex-col justify-between space-y-4 overflow-hidden rounded-xl bg-white p-0 shadow-input transition duration-200 hover:shadow-xl dark:bg-black dark:shadow-none",
       )}
       onClick={() => {
         getDocList(setDocList);

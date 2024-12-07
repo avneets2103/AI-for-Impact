@@ -9,8 +9,8 @@ import {
   ModalFooter,
   useDisclosure,
 } from "@nextui-org/react";
-import { WobbleCard } from "@/components/ui/wobble-card";
 import { ToastInfo } from "@/Helpers/toastError";
+import ReactMarkdown from "react-markdown";
 
 export const ReportLayout = ({
   className,
@@ -48,6 +48,7 @@ export const ReportLayoutItem = ({
 }) => {
   const copyToClipboard = async () => {
     try {
+      console.log(reportSummary);
       await navigator.clipboard.writeText(reportPDFLink);
       ToastInfo("Report Link Copied");
     } catch (err) {
@@ -109,7 +110,7 @@ export const ReportLayoutItem = ({
                     />
                     Report Summary
                   </p>
-                  <p>{cleanTextForDisplay(reportSummary)}</p>
+                  <ReactMarkdown>{reportSummary}</ReactMarkdown>
                 </div>
               </ModalBody>
               <ModalFooter>

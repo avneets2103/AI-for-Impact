@@ -76,6 +76,7 @@ function MyDocTop (props: Props) {
           }
           value={searchDoc} // the current search query
           onChange={(e) => setSearchDoc(e.target.value)} // update the search query
+          onClear={() => setSearchDoc("")} // clear the search query
         />
         <div className="flex items-center gap-2">
           <div

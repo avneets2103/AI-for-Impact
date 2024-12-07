@@ -69,8 +69,6 @@ const Sidebar: React.FC = () => {
       if (!response.ok) {
         throw new Error("Image upload failed!");
       }
-      Cookies.set("newUser", "false");
-      Router.push("/sections/myDoctors");
       ToastInfo("Image uploaded successfully");
     } catch (error) {
       ToastErrors("Image upload failed! Try again");
@@ -149,7 +147,7 @@ const Sidebar: React.FC = () => {
 
   const [updatedPassword, setUpdatedPassword] = useState<string>("");
   const handleUpdatePassword = () => {
-    if (updatePassword.length < minPassLength) {
+    if (updatedPassword.length < minPassLength) {
       ToastErrors(`Password must be at least ${minPassLength} characters long`);
       return;
     }
@@ -386,7 +384,10 @@ const Sidebar: React.FC = () => {
                   <Button
                     size="md"
                     className="w-[30%]"
-                    onPress={handleImageSubmit}
+                    onPress={async()=>{
+                      await handleImageSubmit();
+                      onClose();
+                    }}
                   >
                     Submit
                   </Button>
@@ -397,7 +398,7 @@ const Sidebar: React.FC = () => {
                   className="bg-purple-200 text-black"
                   variant="flat"
                   onPress={async () => {
-                    logout();
+                    await logout();
                     onClose();
                     Router.push("/login");
                   }}

@@ -68,7 +68,7 @@ function VitalsTop(props: Props) {
       <div className="flex h-[7vh] items-end gap-2">
         <Input
           radius="sm"
-          placeholder="Search Graph"
+          placeholder="Search Chart"
           startContent={
             <div>
               <Image
@@ -82,6 +82,8 @@ function VitalsTop(props: Props) {
           }
           value={searchVitals}
           onChange={(e) => setSearchVitals(e.target.value)}
+          isClearable
+          onClear={() => setSearchVitals("")}
         />
         <div className="flex items-center gap-2">
           <div
@@ -188,7 +190,7 @@ function VitalsTop(props: Props) {
                           }}
                         />
                       </div>
-                      {chartGenerated && (
+                      {chartGenerated && newChart.data.length > 0 && (
                         <div className="flex h-[40vh] gap-2">
                           <LineChart
                             labels={labels}
@@ -219,6 +221,11 @@ function VitalsTop(props: Props) {
                               {newChart.unit}
                             </p>
                           </div>
+                        </div>
+                      )}
+                      {chartGenerated && newChart.data.length === 0 && (
+                        <div className="flex h-full w-full gap-2 text-sm text-textColorLight justify-center">
+                          <p className="p-3 m-7 border-gray-200 border-3 rounded-xl">No data found!</p>
                         </div>
                       )}
                     </>

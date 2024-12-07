@@ -41,6 +41,7 @@ html{
     --color-2: #E9EBF6;
     --text-color-dark: #242424;
     --lowContrastColor: #e7e7e7;
+    --toastify-color-info: #853CBE;
 
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
@@ -82,6 +83,7 @@ html{
     --color-1: #272727;
     --color-2: #853CBE;
     --lowContrastColor: #1b1b1b;
+    --toastify-color-info: #853CBE;
 
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;

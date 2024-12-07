@@ -35,6 +35,6 @@ export function Toast(message: string) {
     pauseOnHover: true,
     draggable: true,
     progress: undefined,
-    theme: "dark",
+    theme: "colored",
   });
 }

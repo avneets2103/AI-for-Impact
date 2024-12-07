@@ -3,6 +3,7 @@ import { PatientSchema } from "@/Interfaces";
 import React from "react";
 import DocViewLayout from "./DocViewLayout";
 import DocViewLayoutItem from "./DocViewLayoutItem";
+import Empty from "../Empty";
 
 interface Props {
   data: PatientSchema[];
@@ -19,7 +20,13 @@ function DocViewHero({ data, searchPat, setPatList }: Props) {
       doc.bloodGroup.toLowerCase().includes(lowerCaseSearchDoc)
     );
   });
-  
+  if(filteredData.length === 0){
+    return <Empty text1="No Patients Added!" text2={
+    <div className='flex items-center justify-center gap-2'>
+      <p>Click on the </p> <div className='bg-secondaryColor p-2 rounded-full'><img src="/icons/additionH.png" alt="logo" className="w-[15px]" /></div> <p> button to add a new patient</p>
+    </div>
+    }/>
+  }
   return (
     <DocViewLayout className="w-full">
       {filteredData.map(

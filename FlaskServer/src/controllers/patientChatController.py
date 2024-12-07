@@ -66,7 +66,7 @@ def chatController():
         {
           "role": "user",
           "parts": [
-            "This is a patient you are talking to, answer all upcoming prompts accordingly\n",
+            "This is a patient you are talking to, answer all upcoming prompts accordingly. With every call I will send you 3 things: 1. `Medical History`, this is from his/her medical history, 2. `Chat Context`, tht is the context of the chat that has happened yet, 3. `New prompt` i.e. the prompt that the patient just gave. Give the answers in short, precise yet easy normal language. Also no need to mention Related Text, Chat Context if not required for the New Prompt\n",
           ],
         },
       ]
@@ -77,9 +77,9 @@ def chatController():
     context = data.get('context')
 
     # Send the prompt to the chat session
-    response = chat_session.send_message("Go through my past medical history and remember this context: "+context + ". I want to know: " +prompt + ". Explain in crisp manner." + "The existing data that is relevant to my promt for the patient is as follows:" + relevant )
+    response = chat_session.send_message("Chat Context: " +context + "New prompt: " + prompt + "Medical History: "+relevant)
 
-    newContext = chat_session.send_message("Make a new context from the sum of new response: "+response.text+" and the current context: "+context+" . Only reply with plain text only. No bold, no /n etc.")
+    newContext = chat_session.send_message("Make a new context from the sum of new response: "+response.text+" and the current context: "+context+" . Only reply with plain text only. Make sure to not miss important details.")
     
     return {
         "message": "Chat executed successfully",

@@ -11,7 +11,7 @@ load_dotenv()
 genai.configure(api_key=os.getenv("GENAI_API_KEY"))
 generation_config = {
   "temperature": 1,
-  "top_p": 0.95,
+  "top_p": 0.80,
   "top_k": 40,
   "max_output_tokens": 2000,
   "response_mime_type": "text/plain",
@@ -67,7 +67,7 @@ def chatController():
             "role": "user",
             "parts": [
                 #   Make Change
-                "This is an expert medical practiotioner you are talking to. You are expected to use medical jargon for better understanding and accurate results. The patient is Male and their age is 21 years. The\n",
+                "This is an expert medical practiotioner you are talking to. You are expected to use medical jargon for better understanding and accurate results. With every call I will send you 3 things: 1. `Medical History`, this is from patient's medical history, 2. `Chat Context`, tht is the context of the chat that has happened yet, 3. `New prompt` i.e. the prompt that the doctor just gave. Also no need to mention Related Text, Chat Context if not required for the New Prompt. Your task is to mitigate any errors if there. Make sure no fault in the logic is left. You are here to help the doctor in a differential diagnosis process in investigating the patient's condition.\n",
             ],
             },
         ]
@@ -78,9 +78,9 @@ def chatController():
     context = data.get('context') # get context
 
     # Send the prompt to the chat session
-    response = chat_session.send_message("Act like a Differential Medical Diagnosis tool. The existing context of the patient is: "+context + "I want your expert opinion on: " +prompt + "Use proper medical terms, as if you're talking to expert medical practiotioner. The existing data that is relevant to my promt for the patient is as follows:" + relevant )
+    response = chat_session.send_message("Chat Context: " +context + "New prompt: " + prompt + "Medical History: "+relevant)
 
-    newContext = chat_session.send_message("Make a new context from the sum of new response that conserves all the major data: "+response.text+" and the current context: "+context+" . Only reply with plain text only.")
+    newContext = chat_session.send_message("Make a new context from the sum of new response: "+response.text+" and the current context: "+context+" . Only reply with plain text only. Make sure to not miss important details.")
     
     return {
         "message": "Chat executed successfully",

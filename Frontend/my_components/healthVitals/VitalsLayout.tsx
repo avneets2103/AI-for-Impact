@@ -99,7 +99,6 @@ export const VitalsLayoutItem = ({
                 <div className="flex flex-col items-center gap-4">
                   <div className="flex flex-col items-center gap-0">
                     <p className="text-xl text-textColorDark">{name}</p>
-                    <p className="text-sm text-textColorLight">{description}</p>
                   </div>
                   <LineChart
                     labels={labels}

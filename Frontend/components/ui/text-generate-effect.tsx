@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import { motion, stagger, useAnimate } from "framer-motion";
 import { cn } from "@/lib/utils";
+import ReactMarkdown from 'react-markdown';
 
 export const TextGenerateEffect = ({
   words,
@@ -54,7 +55,7 @@ export const TextGenerateEffect = ({
     <div className={cn("font-normal", className)}>
       <div className="mt-4">
         <div className=" dark:text-gray-200 text-gray-700 text-medium leading-snug tracking-wide">
-          {renderWords()}
+          renderWords()
         </div>
       </div>
     </div>

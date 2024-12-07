@@ -585,7 +585,14 @@ const getMedicines = asyncHandler(async (req, res) => {
         };
         newMedicinesList.push(newMed);
       }
-    
+
+      // Sort medicines: Pending first, taken last
+      newMedicinesList.sort((a, b) => {
+        if (a.status === "pending" && b.status !== "pending") return -1;
+        if (a.status !== "pending" && b.status === "pending") return 1;
+        return 0;
+      });
+
       return res.status(200).json(
         new ApiResponse(
           200,
@@ -597,12 +604,15 @@ const getMedicines = asyncHandler(async (req, res) => {
         )
       );
     } else {
+      patient.medicineStatusDate = currDate;
+      await patient.save();
+      
       // If dates don't match, set pending status for all medicines and update in DB
       const newMedicineList = [];
+      const dbNewMedicineList = [];
       for (const medicine of patient.medicinesList) {
         // Update status to 'pending' in the database
         medicine.status = "pending";
-        await medicine.save(); // Save updated status to the database
     
         // Fetch the doctor's name for the response
         const doctor = await Doctor.findById(medicine.doctor);
@@ -615,8 +625,26 @@ const getMedicines = asyncHandler(async (req, res) => {
           status: "pending",
           doctorId: medicine.doctor,
         };
+        const newDbMed = {
+          medicine: medicine.medicine,
+          dosage: medicine.dosage,
+          doctor: medicine.doctor,
+          status: "pending",
+        };
+        dbNewMedicineList.push(newDbMed);
         newMedicineList.push(newMed);
       }
+
+      // Sort medicines: Pending first, taken last
+      newMedicineList.sort((a, b) => {
+        if (a.status === "pending" && b.status !== "pending") return -1;
+        if (a.status !== "pending" && b.status === "pending") return 1;
+        return 0;
+      });
+
+      // Update the patient document with new medicine list
+      patient.medicinesList = dbNewMedicineList;
+      await patient.save();
     
       return res.status(200).json(
         new ApiResponse(
@@ -638,27 +666,44 @@ const getMedicines = asyncHandler(async (req, res) => {
 const toggleMedicineStatus = asyncHandler(async (req, res) => {
   try {
     const { medicineId, status } = req.body;
-    if(req.user.isDoctor){
+
+    // Prevent access for doctors
+    if (req.user.isDoctor) {
       throw new ApiError(401, "Unauthorized access");
     }
+
+    // Fetch the user's patient
     const user = await User.findById(req.user._id).populate("patientDetails");
     const patient = await Patient.findById(user.patientDetails._id);
+
+    // If the patient doesn't exist
     if (!patient) {
       throw new ApiError(404, "Patient not found");
     }
+    // console.log(patient.medicinesList);
     let index = -1;
     let i = 0;
     for (const medicine of patient.medicinesList) {
-      if (medicine._id.toString() === medicineId) {
+      if (medicine._id.toString() === medicineId.toString()) {
         index = i;
         break;
       }
       i++;
     }
-    if (index > -1) {
-      patient.medicinesList[index].status = status;
-      await patient.save();
+    // console.log(index);
+    // Find the medicine in the patient's medicinesList and update the status
+    const medicine = patient.medicinesList.find(m => m._id.toString() === medicineId.toString());
+    
+    if (!medicine) {
+      throw new ApiError(404, "Medicine not found");
     }
+
+    // Update the medicine status
+    medicine.status = status;
+
+    // Save the patient document (this will save the updated medicinesList)
+    await patient.save();
+    // Return the updated medicinesList
     return res.status(200).json(
       new ApiResponse(
         200,
@@ -669,9 +714,10 @@ const toggleMedicineStatus = asyncHandler(async (req, res) => {
       )
     );
   } catch (error) {
-    throw new ApiError(500, "Something went wrong in editMedicine");
+    throw new ApiError(500, "Something went wrong in toggleMedicineStatus");
   }
-})
+});
+
 
 export {
   getDoctorList,

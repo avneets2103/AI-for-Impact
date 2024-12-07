@@ -22,6 +22,7 @@ import { ReportsSchema } from "@/Interfaces";
 import Image from "next/image";
 import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input";
 import { TextGenerateEffect } from "@/components/ui/text-generate-effect";
+import ReactMarkdown from 'react-markdown';
 
 interface Props {
   reportSearch: string;
@@ -126,14 +127,6 @@ function ReportTop(props: Props) {
       throw error;
     }
   };
-  const cleanTextForDisplay = (text: string): string => {
-    return text
-      .replace(/\*\*(.*?)\*\*/g, "$1") // Remove **bold** markers
-      .replace(/[^\w\s\d\.\,\!\?\/\-]/g, "") // Remove special characters (excluding common punctuation and slashes)
-      .replace(/\n+/g, " ") // Replace multiple newlines with a single space
-      .replace(/(\d+\.\s)/g, "\n$1") // Insert newline before numbered points
-      .trim(); // Trim any excess whitespace at the start/end
-  };
   
   return (
     <div className="width-[100%] my-4 flex h-[7%] cursor-pointer items-center justify-between font-medium">
@@ -157,6 +150,7 @@ function ReportTop(props: Props) {
           }
           value={reportSearch}
           onChange={(e) => setReportSearch(e.target.value)}
+          onClear={() => setReportSearch("")}
         />
         <div className="flex items-center gap-2">
           <div
@@ -226,11 +220,12 @@ function ReportTop(props: Props) {
                 </ModalHeader>
                 <ModalBody className="max-h-[60vh] overflow-y-auto">
                   {loading ? (
-                    <div className="flex h-full w-full items-center justify-center">
+                    <div className="flex h-full w-full items-center justify-center flex-col gap-2">
                       <CircularProgress
                         aria-label="Loading..."
-                        color="danger"
+                        color="primary"
                       />
+                      <p className="text-xs text-gray-500">Processing your Report!</p>
                     </div>
                   ) : (
                     <>
@@ -342,9 +337,7 @@ function ReportTop(props: Props) {
                                 <p className="text-md font-medium">
                                   {oldPrompt}
                                 </p>
-                                <TextGenerateEffect
-                                  words={cleanTextForDisplay(queryResponseText)}
-                                />
+                                <ReactMarkdown>{queryResponseText}</ReactMarkdown>
                               </div>
                             </div>
                           ) : (
@@ -357,14 +350,14 @@ function ReportTop(props: Props) {
                 </ModalBody>
                 {addReport ? (
                   <ModalFooter>
-                    <>
+                    {loading?<></>:<>
                       <Button
                         className="mx-auto bg-primaryColor text-white"
                         variant="flat"
                         onPress={async () => {
                           try {
                             setLoading(true);
-                            handleSubmit(onClose);
+                            await handleSubmit(onClose);
                           } catch (e) {
                             ToastErrors("Add Report Failed");
                           } finally {
@@ -374,7 +367,7 @@ function ReportTop(props: Props) {
                       >
                         Add Report
                       </Button>
-                    </>
+                    </>}
                   </ModalFooter>
                 ) : (
                   <></>

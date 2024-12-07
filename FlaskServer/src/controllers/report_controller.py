@@ -33,11 +33,11 @@ def update_kb():
     absolute_text = data.get('absoluteText')
 
     # Summarize individual report
-    ind_report_summary = chat_session.send_message("Summarize this report for a doctor keeping only the medically relevant parts. Make it super crisp and only the parts doctor needs to worry about. "+report_text)
+    ind_report_summary = chat_session.send_message("Summarize this report for a doctor keeping only the medically relevant parts. Make it crisp and only the parts doctor needs to worry about. Make sure to bold the parts which are more important: "+report_text)
 
     # Summarize combined report and absolute text
     new_absolute_raw_text = f"{report_text} {absolute_text}"
-    new_absolute_text = chat_session.send_message("Summarize this report for a doctor keeping only the medically relevant parts. Make it super crisp and only the parts doctor needs to worry about. "+new_absolute_raw_text)
+    new_absolute_text = chat_session.send_message("Summarize this report for a doctor keeping only the medically relevant parts. Make it crisp and only the parts doctor needs to worry about. Make sure to bold the parts which are more important: "+new_absolute_raw_text)
 
     response_data = {
         "message": "Report updated successfully",
@@ -138,7 +138,7 @@ def embed_report():
 def generalReportQuery(request):
     genai.configure(api_key=os.getenv("GENAI_API_KEY"))
     generation_config = {
-    "temperature": 1,
+    "temperature": 0.5,
     "top_p": 0.95,
     "top_k": 40,
     "max_output_tokens": 2000,
@@ -152,19 +152,35 @@ def generalReportQuery(request):
         history=[
         ]
     )
+    modelSum = genai.GenerativeModel(
+    model_name="gemini-1.5-flash",
+    generation_config=generation_config,
+    )
+    chat_session2 = modelSum.start_chat(
+        history=[
+            {
+                "role": "user",
+                "parts": [
+                    "Extract the medically relevant text of the prompt. I want to use this text for searching in my pinecone database, so make it such that relevant text can be found in the database. Make sure to include any date(if mentioned in prompt) and the medical term the patient is looking for. This is a report query sent by the patient, searching some information in his/her report. Since embedding has to be searched, u can also add other replacable medical terms like Sugar levels to Blood Glucose Levels etc. \n",
+                ],
+            },
+        ]
+    )
     pc = Pinecone(api_key=api_key)
     index = pc.Index(index_name)
     data = request.get_json()
     patientId = data.get('patientId')
     queryText = data.get('queryText')
 
+    sumPrompt = (chat_session2.send_message(queryText)).text
+    print(sumPrompt)
     # convert query text to embeddings
-    queryEmbeddings = get_embeddings(queryText, tokenizer2, model2).squeeze().tolist()
+    queryEmbeddings = get_embeddings(sumPrompt, tokenizer2, model2).squeeze().tolist()
 
     # query the index
     results = index.query(
         vector = queryEmbeddings, 
-        top_k=10, 
+        top_k=40, 
         include_metadata=True,
         filter={
             "patientId": {"$eq": patientId}
@@ -176,6 +192,7 @@ def generalReportQuery(request):
     for result in results.matches:
         searchText += result.metadata['reportText']
         sourcesList.append(result.metadata['reportLink'])
+    # print(searchText)
 
     response = chat_session.send_message(queryText + " .Anwer this question above, based upon the information mentioned below. "+searchText)
     

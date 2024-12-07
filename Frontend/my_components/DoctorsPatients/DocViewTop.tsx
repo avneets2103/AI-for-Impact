@@ -50,6 +50,7 @@ function DocViewTop(props: Props) {
           }
           value={searchPat} // the current search query
           onChange={(e) => setSearchPat(e.target.value)} // update the search query
+          onClear={() => setSearchPat("")} // clear the search query
         />
         <div className="flex items-center gap-2">
           <div
