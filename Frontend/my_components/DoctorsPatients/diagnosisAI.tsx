@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Message } from "@/Interfaces";
+import { Medicine, Message } from "@/Interfaces";
 import { Button, Input } from "@nextui-org/react";
 import { FLASK_SERVER } from "@/CONSTANTS";
 import axios from "axios";
@@ -13,8 +13,10 @@ import Loader from "@/components/ui/Loader";
 
 interface Props{
   id: string;
+  medicineList: Medicine[];
+  doctorNotes: string;
 }
-function DiagnosisAI({id}: Props) {
+function DiagnosisAI({id, medicineList, doctorNotes}: Props) {
   /**
    * The conversation state is an array of messages.
    * Each message is an object with a text and a sender.
@@ -54,12 +56,18 @@ function DiagnosisAI({id}: Props) {
     setConversation((prev) => [...prev, newMessage]);
     setWaitForRes(true);
     setInputText("");
+    let medicines = "";
+    for (const medicine of medicineList) {
+      medicines += medicine.medicine + ", ";
+    }
 
     try{
       const res = await axios.post(`${FLASK_SERVER}/doctorChat/chat`, {
         prompt: inputText,
         context: context,
-        patientId: id
+        patientId: id,
+        medicines,
+        notes: doctorNotes,
       });
       
       // Update context with the new context from response

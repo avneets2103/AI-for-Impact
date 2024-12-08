@@ -67,7 +67,7 @@ def chatController():
             "role": "user",
             "parts": [
                 #   Make Change
-                "This is an expert medical practiotioner you are talking to. You are expected to use medical jargon for better understanding and accurate results. With every call I will send you 3 things: 1. `Medical History`, this is from patient's medical history, 2. `Chat Context`, tht is the context of the chat that has happened yet, 3. `New prompt` i.e. the prompt that the doctor just gave. Also no need to mention Related Text, Chat Context if not required for the New Prompt. Your task is to mitigate any errors if there. Make sure no fault in the logic is left. You are here to help the doctor in a differential diagnosis process in investigating the patient's condition.\n",
+                "This is an expert medical practiotioner you are talking to. You are expected to use medical jargon for better understanding and accurate results. With every call I will send you 3 things: 1. `Medical History`, this is from patient's medical history, 2. `Chat Context`, tht is the context of the chat that has happened yet, 3. `New prompt` i.e. the prompt that the doctor just gave, 4. `Medicines` this is the list of medicines the patient is taking, 5. `Notes`, this is the notes this doctor has written for the patient. Give the answers in short, precise yet easy normal language. Also no need to mention Related Text, Chat Context if not required for the New Prompt. Your task is to mitigate any errors if there. Make sure no fault in the logic is left. You are here to help the doctor in a differential diagnosis process in investigating the patient's condition.\n",
             ],
             },
         ]
@@ -76,9 +76,11 @@ def chatController():
     prompt = data.get('prompt') #change namespace
     relevant = getRelevant(data) # get embeddings 
     context = data.get('context') # get context
+    medicines = data.get('medicines')
+    notes = data.get('notes')
 
     # Send the prompt to the chat session
-    response = chat_session.send_message("Chat Context: " +context + "New prompt: " + prompt + "Medical History: "+relevant)
+    response = chat_session.send_message("Chat Context: " +context + "New prompt: " + prompt + "Medical History: "+relevant+"Medicines: "+medicines+"Notes: "+notes)
 
     newContext = chat_session.send_message("Make a new context from the sum of new response: "+response.text+" and the current context: "+context+" . Only reply with plain text only. Make sure to not miss important details.")
     

@@ -66,7 +66,7 @@ def chatController():
         {
           "role": "user",
           "parts": [
-            "This is a patient you are talking to, answer all upcoming prompts accordingly. With every call I will send you 3 things: 1. `Medical History`, this is from his/her medical history, 2. `Chat Context`, tht is the context of the chat that has happened yet, 3. `New prompt` i.e. the prompt that the patient just gave. Give the answers in short, precise yet easy normal language. Also no need to mention Related Text, Chat Context if not required for the New Prompt\n",
+            "This is a patient you are talking to, answer all upcoming prompts accordingly. With every call I will send you 5 things: 1. `Medical History`, this is from his/her medical history, 2. `Chat Context`, tht is the context of the chat that has happened yet, 3. `New prompt` i.e. the prompt that the patient just gave, 4. `Medical List`, this is the list of medicines the patient is taking, 5. `Doctor Notes`, this is the list of notes the doctor has written for the patient. Give the answers in short, precise yet easy normal language. Also no need to mention Related Text, Chat Context if not required for the New Prompt\n",
           ],
         },
       ]
@@ -75,9 +75,11 @@ def chatController():
     prompt = data.get('prompt')
     relevant = getRelevant(data) # get embeddings 
     context = data.get('context')
+    medicines = data.get('medicines')
+    notes = data.get('notes')
 
     # Send the prompt to the chat session
-    response = chat_session.send_message("Chat Context: " +context + "New prompt: " + prompt + "Medical History: "+relevant)
+    response = chat_session.send_message("Chat Context: " +context + "New prompt: " + prompt + "Medical History: "+relevant + "Medical List: "+medicines + "Doctor Notes: "+notes)
 
     newContext = chat_session.send_message("Make a new context from the sum of new response: "+response.text+" and the current context: "+context+" . Only reply with plain text only. Make sure to not miss important details.")
     

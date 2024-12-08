@@ -464,9 +464,29 @@ const patientChat = asyncHandler(async (req, res) => {
       throw new ApiError(401, "Unauthorized access");
     }
 
+    const user = await User.findById(req.user._id);
+    const patient = await Patient.findById(user.patientDetails._id);
+    if (!user || !user.patientDetails) {
+      throw new ApiError(404, "Patient not found");
+    }
+    // get the medicine list from the patient
+    const medicineList = patient.medicinesList;
+    let medicines = "";
+    for (const medicine of medicineList) {
+      medicines += medicine.medicine + ", ";
+    }
+    // get the doctor notes for this patient
+    const doctorNotes = await patient.doctorsNotes;
+    let notes = "";
+    for (const note of doctorNotes) {
+      notes += note.note + ", ";
+    }
+
     const resp =  await axios.post(`${process.env.FLASK_SERVER}/patientChat/chat`, {
       prompt,
       context,
+      medicines,
+      notes,
       patientId: req.user.patientDetails._id
     })
 

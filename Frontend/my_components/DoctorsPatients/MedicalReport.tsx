@@ -287,7 +287,7 @@ const MedicalReport = ({
           </div>
         );
       case "Diagnosis":
-        return <DiagnosisAI id={id} />;
+        return <DiagnosisAI id={id} medicineList={medicine} doctorNotes={doctorNotes} />;
       case "Medication":
         return <TableExample medicine={medicine} setMedicine={setMedicine} isDoctor={true} patientId={id} setPatientData={setPatientData} setDoctorNotes={setDoctorNotes}/>;
       default:
