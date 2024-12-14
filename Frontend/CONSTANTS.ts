@@ -1,7 +1,8 @@
 import { sidebarMenuItems } from "./Interfaces";
 
 const minPassLength = 6;
-const BACKEND_URI="http://localhost:4000/api/v1" // local
+// const BACKEND_URI="http://localhost:4000/api/v1" // local
+const BACKEND_URI = "https://10vqsubdfl.execute-api.ap-south-1.amazonaws.com/api/v1"; // render
 // const BACKEND_URI = "https://medical-sih-app.onrender.com/api/v1"; // render
 // const BACKEND_URI = "https://btp-web-ci2r.vercel.app/api/v1"; // vercel
 const FLASK_SERVER = "http://127.0.0.1:5555/api/v1"

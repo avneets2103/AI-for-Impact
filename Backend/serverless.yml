@@ -1,0 +1,203 @@
+service: my-express-app
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  httpApi:
+    cors: true
+  environment:
+    MONGODB_URI: ${env:MONGODB_URI}
+    FLASK_SERVER: ${env:FLASK_SERVER}
+    ACCESS_TOKEN_SECRET: ${env:ACCESS_TOKEN_SECRET}
+    REFRESH_TOKEN_SECRET: ${env:REFRESH_TOKEN_SECRET}
+    ACCESS_TOKEN_EXPIRY: ${env:ACCESS_TOKEN_EXPIRY}
+    REFRESH_TOKEN_EXPIRY: ${env:REFRESH_TOKEN_EXPIRY}
+    OTP_SECRET_KEY: ${env:otp_secret_key}
+    MAIL_PASSWORD: ${env:MAIL_PASSWORD}
+    MAIL_USER: ${env:MAIL_USER}
+    DOCTOR_TOKEN_SECRET: ${env:DOCTOR_TOKEN_SECRET}
+    DOCTOR_TOKEN_EXPIRY: ${env:DOCTOR_TOKEN_EXPIRY}
+    S3_ACCESS_KEY_ID: ${env:S3_ACCESS_KEY_ID}
+    S3_SECRET_ACCESS_KEY: ${env:S3_SECRET_ACCESS_KEY}
+    S3_CLIENT_REGION: ${env:S3_CLIENT_REGION}
+    S3_BUCKET_NAME: ${env:S3_BUCKET_NAME}
+  region: ap-south-1
+
+functions:
+  app:
+    handler: src/index.handler # Update the handler path to src/index.js
+    events:
+      - httpApi: # Automatically sets up an API Gateway
+          path: /api/v1/auth/login
+          method: post
+          cors: true
+      - httpApi: # Automatically sets up an API Gateway
+          path: /api/v1/auth/verifyOTP
+          method: post
+          cors: true
+      - httpApi:
+          path: /api/v1/auth/resendOTP
+          method: post
+          cors: true
+      - httpApi:
+          path: /api/v1/auth/generateNewPassword
+          method: post
+          cors: true
+      - httpApi:
+          path: /api/v1/auth/refreshAccessToken
+          method: post
+          cors: true
+      - httpApi:
+          path: /api/v1/auth/setDoctor
+          method: post
+          cors: true
+      - httpApi:
+          path: /api/v1/auth/deleteUser
+          method: post
+          cors: true
+      - httpApi:
+          path: /api/v1/auth/getAllUsers
+          method: post
+          cors: true
+
+      # Secured routes (JWT verification)
+      - httpApi:
+          path: /api/v1/auth/verifyAccessToken
+          method: post
+          cors: true
+      - httpApi:
+          path: /api/v1/auth/logout
+          method: post
+          cors: true
+      - httpApi:
+          path: /api/v1/auth/changePassword
+          method: post
+          cors: true
+      - httpApi:
+          path: /api/v1/auth/getUserData
+          method: post
+          cors: true
+      - httpApi:
+          path: /api/v1/auth/savePatientDetails
+          method: post
+          cors: true
+      - httpApi:
+          path: /api/v1/auth/profilePhotoUploadSignedURL
+          method: post
+          cors: true
+      - httpApi:
+          path: /api/v1/auth/updatePassword
+          method: post
+          cors: true
+
+      # Patient routes
+      - httpApi:
+          path: /api/v1/patient/getDoctorList
+          method: post
+          cors: true
+      - httpApi: 
+          path: /api/v1/patient/addDoctor
+          method: post
+          cors: true
+      - httpApi: 
+          path: /api/v1/patient/getReportList
+          method: post
+          cors: true
+      - httpApi: 
+          path: /api/v1/patient/addReport
+          method: post
+          cors: true
+      - httpApi: 
+          path: /api/v1/patient/addChatReport
+          method: post
+          cors: true
+      - httpApi: 
+          path: /api/v1/patient/removeDoctor
+          method: post
+          cors: true
+      - httpApi: 
+          path: /api/v1/patient/reportAddSignedURL
+          method: post
+          cors: true
+      - httpApi: 
+          path: /api/v1/patient/removeReport
+          method: post
+          cors: true
+      - httpApi: 
+          path: /api/v1/patient/queryReports
+          method: post
+          cors: true
+      - httpApi: 
+          path: /api/v1/patient/queryDateVal
+          method: post
+          cors: true
+      - httpApi: 
+          path: /api/v1/patient/acceptChart
+          method: post
+          cors: true
+      - httpApi: 
+          path: /api/v1/patient/chat
+          method: post
+          cors: true
+      - httpApi: 
+          path: /api/v1/patient/getCharts
+          method: post
+          cors: true
+      - httpApi: 
+          path: /api/v1/patient/removeChart
+          method: post
+          cors: true
+      - httpApi: 
+          path: /api/v1/patient/getMedicines
+          method: post
+          cors: true
+      - httpApi: 
+          path: /api/v1/patient/toggleMedicineStatus
+          method: post
+          cors: true
+
+      # New Doctor Routes (Secured)
+      - httpApi: 
+          path: /api/v1/doctors/getPatientList
+          method: post
+          cors: true
+      - httpApi: 
+          path: /api/v1/doctors/generatePatientCode
+          method: post
+          cors: true
+      - httpApi: 
+          path: /api/v1/doctors/getPatientMedical
+          method: post
+          cors: true
+      - httpApi: 
+          path: /api/v1/doctors/removePatient
+          method: post
+          cors: true
+      - httpApi: 
+          path: /api/v1/doctors/saveDoctorNote
+          method: post
+          cors: true
+      - httpApi: 
+          path: /api/v1/doctors/addMedicine
+          method: post
+          cors: true
+      - httpApi: 
+          path: /api/v1/doctors/removeMedicine
+          method: post
+          cors: true
+      - httpApi: 
+          path: /api/v1/doctors/emptyMedicineList
+          method: post
+          cors: true
+      
+plugins:
+  - serverless-offline
+
+package:
+  exclude:
+    - node_modules/aws-sdk/** # Exclude AWS SDK as it's included in Lambda
+    - ./** # Exclude everything by default
+  include:
+    - src/** # Include the source directory
+    - node_modules/** # Include dependencies
+    - .env # Include the .env file in the deployment package

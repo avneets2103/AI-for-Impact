@@ -1,12 +1,12 @@
-import { asyncHandler } from "../Utils/asyncHandler.js";
-import ApiError from "../Utils/ApiError.js";
-import ApiResponse from "../Utils/ApiResponse.js";
-import { User } from "../Models/user.model.js"; // Ensure correct import paths
-import { Patient } from "../Models/patient.model.js";
-import { Doctor } from "../Models/doctor.model.js";
+import { asyncHandler } from "../Utils/asyncHandler.mjs";
+import ApiError from "../Utils/ApiError.mjs";
+import ApiResponse from "../Utils/ApiResponse.mjs";
+import { User } from "../Models/user.model.mjs"; // Ensure correct import paths
+import { Patient } from "../Models/patient.model.mjs";
+import { Doctor } from "../Models/doctor.model.mjs";
 import jwt from "jsonwebtoken";
-import { extractTextFromPDF, getObjectURL, putObjectURL } from "../Utils/s3.js";
-import { makeUniqueFileName } from "../Utils/helpers.js";
+import { extractTextFromPDF, getObjectURL, putObjectURL } from "../Utils/s3.mjs";
+import { makeUniqueFileName } from "../Utils/helpers.mjs";
 import axios from "axios";
 
 const getDoctorList = asyncHandler(async (req, res) => {
@@ -686,6 +686,7 @@ const getMedicines = asyncHandler(async (req, res) => {
 const toggleMedicineStatus = asyncHandler(async (req, res) => {
   try {
     const { medicineId, status } = req.body;
+    console.log(medicineId);
 
     // Prevent access for doctors
     if (req.user.isDoctor) {
@@ -695,35 +696,35 @@ const toggleMedicineStatus = asyncHandler(async (req, res) => {
     // Fetch the user's patient
     const user = await User.findById(req.user._id).populate("patientDetails");
     const patient = await Patient.findById(user.patientDetails._id);
-
+    
     // If the patient doesn't exist
     if (!patient) {
       throw new ApiError(404, "Patient not found");
     }
-    // console.log(patient.medicinesList);
-    let index = -1;
-    let i = 0;
-    for (const medicine of patient.medicinesList) {
-      if (medicine._id.toString() === medicineId.toString()) {
-        index = i;
-        break;
-      }
-      i++;
-    }
-    // console.log(index);
-    // Find the medicine in the patient's medicinesList and update the status
-    const medicine = patient.medicinesList.find(m => m._id.toString() === medicineId.toString());
+
+    let newMedicineList = JSON.parse(JSON.stringify(patient.medicinesList));
     
-    if (!medicine) {
+    let index = patient.medicinesList.findIndex(m => m._id.toString() === medicineId.toString());
+    if (index > -1) {
+      // remove the medicine from the new medicinelist
+      newMedicineList.splice(index, 1);
+    }
+    else {
       throw new ApiError(404, "Medicine not found");
     }
+    let newMed = patient.medicinesList[index];
+    newMed.status = status;
+    newMedicineList.push(newMed);
 
-    // Update the medicine status
-    medicine.status = status;
+    patient.medicinesList = newMedicineList;
+    console.log(patient.medicinesList);
+    try {
+      await patient.validate(); // Validate the document without saving
+      await patient.save();
+    } catch (err) {
+      console.error("Validation Error:", err.message);
+    }
 
-    // Save the patient document (this will save the updated medicinesList)
-    await patient.save();
-    // Return the updated medicinesList
     return res.status(200).json(
       new ApiResponse(
         200,

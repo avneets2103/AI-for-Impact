@@ -1,5 +1,3 @@
-import speakeasy from 'speakeasy';
-
 const randomString = (length) => {
     let result = '';
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789*&@#';
@@ -10,16 +8,6 @@ const randomString = (length) => {
     return result;
 }
 
-const generateOTP = (secretBase32) => {
-    let token = speakeasy.totp({
-        secret: secretBase32, 
-        digits: 4,
-        step: 60, 
-        window: 1
-    });
-    return token;
-}
-
 const makeUniqueFileName = (fileName, userMail) => {
     const date = new Date();
     return userMail + '_' + fileName + '_' + date.getTime();
@@ -27,6 +15,5 @@ const makeUniqueFileName = (fileName, userMail) => {
 
 export {
     randomString,
-    generateOTP,
     makeUniqueFileName
 }

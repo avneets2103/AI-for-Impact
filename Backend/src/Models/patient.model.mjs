@@ -91,11 +91,9 @@ const patientSchema = new mongoose.Schema({
                     type: {
                         date: {
                             type: String,
-                            required: true,
                         },
                         value: {
                             type: Number,
-                            required: true,
                         }
                     }
                 }
@@ -134,29 +132,12 @@ const patientSchema = new mongoose.Schema({
     ],
     medicinesList: [
         {
-            type: {
-                medicine: {
-                    type: String,
-                    required: true,
-                },
-                dosage: {
-                    type: String,
-                    required: true,
-                },
-                doctor: {
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref: 'Doctor',
-                    required: true,
-                },
-                status: {
-                    type: String, 
-                    required: true, 
-                    enum: ["taken", "pending"], 
-                },
-            },
-            default: [],
+          medicine: { type: String, required: true },
+          dosage: { type: String },
+          doctor: { type: mongoose.Schema.Types.ObjectId, ref: 'Doctor' },
+          status: { type: String, enum: ["taken", "pending"] },
         }
-    ],
+      ],
     medicineStatusDate: {
         type: Date,
         default: () => new Date().setHours(0, 0, 0, 0), // Default to the start of the current day
