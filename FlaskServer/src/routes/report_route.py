@@ -1,5 +1,5 @@
 from flask import Blueprint, request
-from controllers.report_controller import update_kb, embed_report, generalReportQuery, dateValQuery
+from src.controllers.report_controller import update_kb, embed_report, generalReportQuery, dateValQuery
 
 report_bp = Blueprint('report_bp', __name__)
 

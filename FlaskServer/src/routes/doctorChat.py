@@ -1,5 +1,5 @@
 from flask import Blueprint # 
-from controllers.doctorChatController import chatController
+from src.controllers.doctorChatController import chatController
 
 doctor_chat_bp = Blueprint('doctor_chat_bp', __name__)
 

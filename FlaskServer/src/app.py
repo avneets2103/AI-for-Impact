@@ -1,8 +1,8 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
-from routes.report_route import report_bp
-from routes.patientChat import patient_chat_bp
-from routes.doctorChat import doctor_chat_bp
+from src.routes.report_route import report_bp
+from src.routes.patientChat import patient_chat_bp
+from src.routes.doctorChat import doctor_chat_bp
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 # Initialize Flask app

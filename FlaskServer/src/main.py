@@ -1,12 +1,12 @@
 import os
 from dotenv import load_dotenv
-from app import app
+from src.app import app
 from pinecone import Pinecone, ServerlessSpec
 
 # Load environment variables from .env
 load_dotenv()
 
-def connect_db_and_start_server():
+def setup_pinecone():
     try:
         # Set up Pinecone connection
         pinecone_api_key = os.getenv("PINECONE_API_KEY")
@@ -25,14 +25,16 @@ def connect_db_and_start_server():
                 ),
             )
         print(f"Connected to Pinecone; index '{index_name}' is ready.")
-
-        # Start Flask app
-        port = os.getenv("PORT") or 8000  # Fallback to 8000 if PORT isn't set
-        print(f"Server listening on port {port}")
-        app.run(debug=True, port=int(port))
-    
     except Exception as err:
-        print("App didn't launch!", err)
+        print("Error setting up Pinecone:", err)
+
+# Call the Pinecone setup at import time
+setup_pinecone()
+
+# Expose the Flask app as 'application' for WSGI compatibility
+application = app
 
 if __name__ == "__main__":
-    connect_db_and_start_server()
+    port = os.getenv("PORT") or 8000  # Fallback to 8000 if PORT isn't set
+    print(f"Server listening on port {port}")
+    app.run(debug=True, port=int(port))
