@@ -158,35 +158,35 @@ functions:
 
       # New Doctor Routes (Secured)
       - httpApi: 
-          path: /api/v1/doctors/getPatientList
+          path: /api/v1/doctor/getPatientList
           method: post
           cors: true
       - httpApi: 
-          path: /api/v1/doctors/generatePatientCode
+          path: /api/v1/doctor/generatePatientCode
           method: post
           cors: true
       - httpApi: 
-          path: /api/v1/doctors/getPatientMedical
+          path: /api/v1/doctor/getPatientMedical
           method: post
           cors: true
       - httpApi: 
-          path: /api/v1/doctors/removePatient
+          path: /api/v1/doctor/removePatient
           method: post
           cors: true
       - httpApi: 
-          path: /api/v1/doctors/saveDoctorNote
+          path: /api/v1/doctor/saveDoctorNote
           method: post
           cors: true
       - httpApi: 
-          path: /api/v1/doctors/addMedicine
+          path: /api/v1/doctor/addMedicine
           method: post
           cors: true
       - httpApi: 
-          path: /api/v1/doctors/removeMedicine
+          path: /api/v1/doctor/removeMedicine
           method: post
           cors: true
       - httpApi: 
-          path: /api/v1/doctors/emptyMedicineList
+          path: /api/v1/doctor/emptyMedicineList
           method: post
           cors: true
       

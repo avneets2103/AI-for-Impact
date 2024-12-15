@@ -236,7 +236,7 @@ function LoginCard({ setNewPatientSignup }: Props) {
               </Link>
             </div>
           </div>
-          <p className="text-center text-xs text-textColorLight">
+          {/* <p className="text-center text-xs text-textColorLight">
             By clicking continue, you agree to our
             <a href="" className="text-textColorDark">
               {" "}
@@ -247,6 +247,12 @@ function LoginCard({ setNewPatientSignup }: Props) {
               {" "}
               Privacy Policy
             </a>
+          </p> */}
+          <p className="text-center text-xs text-textColorLight flex flex-col">
+            <b>Patient's Credentials:</b> "avneets2103@gmail.com" && "testPass" 
+          </p>
+          <p className="text-center text-xs text-textColorLight flex flex-col">
+            <b>Doctor's Credentials:</b> "avneet.bedi.ug21@nsut.ac.in" && "testPass" 
           </p>
         </div>
       </>
@@ -405,6 +411,9 @@ function LoginCard({ setNewPatientSignup }: Props) {
           </Link>
         </div>
         <p className="text-center text-xs text-textColorLight">
+          For Testing Purposes Only, enter OTP as <b>"0000"</b>
+        </p>
+        {/* <p className="text-center text-xs text-textColorLight">
           By clicking continue, you agree to our
           <a href="" className="text-textColorDark">
             {" "}
@@ -415,7 +424,7 @@ function LoginCard({ setNewPatientSignup }: Props) {
             {" "}
             Privacy Policy
           </a>
-        </p>
+        </p> */}
       </div>
     </>
   );
